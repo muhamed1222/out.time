@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import settingsService from '../services/settingsService';
 import toast from 'react-hot-toast';
+import useAuth from '../hooks/useAuth';
 
 const Settings = () => {
+  const { updateUserCompany } = useAuth();
   const [settings, setSettings] = useState({
     morning_notification_time: '09:00',
     evening_notification_time: '18:00',
@@ -47,6 +49,7 @@ const Settings = () => {
     setLoading(true);
     try {
       await settingsService.updateSettings(settings);
+      updateUserCompany(settings.name);
       toast.success('Настройки успешно сохранены');
       setError(null);
     } catch (error) {

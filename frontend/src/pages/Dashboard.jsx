@@ -174,7 +174,7 @@ const Dashboard = () => {
       <div className="bg-[rgba(255,255,255,0.6)] rounded-[19px] p-[13px] mb-[23px]">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold text-gray-900 leading-[32px]">Дашборд</h1>
-          <p className="text-gray-600">Общая статистика по компании</p>
+          <p className="text-[14px] text-[#727272]">Общая статистика по компании</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-[3px]">

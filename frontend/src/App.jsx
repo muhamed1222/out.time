@@ -10,6 +10,8 @@ import Reports from './pages/Reports'
 import Settings from './pages/Settings'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import Help from './pages/Help'
+import Faq from './pages/Faq'
 
 function App() {
   const { isAuthenticated } = useAuth()
@@ -39,6 +41,8 @@ function App() {
             <Route path="employees/:id" element={<EmployeeDetail />} />
             <Route path="reports" element={<Reports />} />
             <Route path="settings" element={<Settings />} />
+            <Route path="help" element={<Help />} />
+            <Route path="faq" element={<Faq />} />
           </Route>
         ) : (
           <Route path="*" element={<Navigate to="/login" replace />} />

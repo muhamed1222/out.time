@@ -59,7 +59,6 @@ const Sidebar = () => {
     { name: 'Дашборд', href: '/dashboard', icon: DashboardIcon },
     { name: 'Сотрудники', href: '/employees', icon: EmployeesIcon },
     { name: 'Отчеты', href: '/reports', icon: ReportsIcon },
-    { name: 'Настройки', href: '/settings', icon: SettingsIcon },
   ]
 
   return (
@@ -99,18 +98,27 @@ const Sidebar = () => {
       </div>
       
 
-      <div className="p-[12px]">
-        <div className="bg-[#fdfdfd] rounded-full w-[48px] h-[48px] flex items-center justify-center mb-[8px] cursor-pointer hover:bg-gray-200">
-          <MessageIcon />
-        </div>
-        <div className="bg-[#fdfdfd] p-[4px] rounded-full flex flex-col gap-[4px] w-min">
-          <div className="bg-[#f1f1f1] rounded-full p-[8px] cursor-pointer">
-            <SunIcon />
-          </div>
-          <div className="rounded-full p-[8px] cursor-pointer">
-            <MoonIcon />
-          </div>
-        </div>
+      <div className="p-3">
+        <NavLink
+          to="/help"
+          className={({ isActive }) =>
+            `block mb-2 text-sm hover:text-black transition-colors ${
+              isActive ? 'font-semibold text-black' : 'text-gray-600'
+            }`
+          }
+        >
+          Помощь
+        </NavLink>
+        <NavLink
+          to="/faq"
+          className={({ isActive }) =>
+            `block text-sm hover:text-black transition-colors ${
+              isActive ? 'font-semibold text-black' : 'text-gray-600'
+            }`
+          }
+        >
+          Часто задаваемые вопросы
+        </NavLink>
       </div>
     </div>
   )

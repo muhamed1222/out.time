@@ -10,29 +10,29 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const token = localStorage.getItem('token')
-    if (token) {
-      console.log('Found token in localStorage:', token)
+    const storedUser = localStorage.getItem('user');
+
+    if (token && storedUser) {
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`
-      checkAuth()
-    } else {
-      console.log('No token found in localStorage')
-      setLoading(false)
+      setUser(JSON.parse(storedUser));
+      setIsAuthenticated(true);
+      // We can still verify with the server in the background if needed
+      // checkAuth(); 
     }
+    setLoading(false)
   }, [])
 
   const checkAuth = async () => {
+    // This function can be used to verify the token with the server,
+    // but the initial state is now set synchronously from localStorage.
     try {
-      console.log('Checking auth with headers:', api.defaults.headers.common)
       const response = await api.get('/auth/me')
-      console.log('Auth check response:', response.data)
-      setUser(response.data.user)
+      const fetchedUser = response.data.user;
+      setUser(fetchedUser)
+      localStorage.setItem('user', JSON.stringify(fetchedUser));
       setIsAuthenticated(true)
     } catch (error) {
-      console.error('Auth check failed:', error.response || error)
-      localStorage.removeItem('token')
-      delete api.defaults.headers.common['Authorization']
-      setIsAuthenticated(false)
-      setUser(null)
+      logout();
     } finally {
       setLoading(false)
     }
@@ -41,15 +41,10 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     try {
       const response = await api.post('/auth/login', { email, password })
-      console.log('Login response:', response.data)
-      
       const { accessToken, user } = response.data
       
-      if (!accessToken) {
-        throw new Error('No token received from server')
-      }
-      
       localStorage.setItem('token', accessToken)
+      localStorage.setItem('user', JSON.stringify(user));
       api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
       
       setUser(user)
@@ -64,6 +59,7 @@ export function AuthProvider({ children }) {
 
   const logout = () => {
     localStorage.removeItem('token')
+    localStorage.removeItem('user');
     delete api.defaults.headers.common['Authorization']
     setUser(null)
     setIsAuthenticated(false)
@@ -76,15 +72,10 @@ export function AuthProvider({ children }) {
         email,
         password
       })
-      console.log('Register response:', response.data)
-      
       const { accessToken, user } = response.data
       
-      if (!accessToken) {
-        throw new Error('No token received from server')
-      }
-      
       localStorage.setItem('token', accessToken)
+      localStorage.setItem('user', JSON.stringify(user));
       api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
       
       setUser(user)
@@ -97,15 +88,33 @@ export function AuthProvider({ children }) {
     }
   }
 
+  const updateUser = (updatedUserData) => {
+    setUser(prevUser => {
+      const newUser = { ...prevUser, ...updatedUserData };
+      localStorage.setItem('user', JSON.stringify(newUser));
+      return newUser;
+    });
+  };
+
+  const updateUserCompany = (companyName) => {
+    if (user) {
+        const updatedUser = { ...user, company: { ...user.company, name: companyName } };
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+    }
+  };
+
   const value = {
     isAuthenticated,
     user,
     loading,
     login,
     logout,
-    register
+    register,
+    updateUserCompany
   }
 
+  // The loading screen is now simpler as we don't need to wait for checkAuth
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">

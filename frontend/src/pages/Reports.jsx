@@ -54,7 +54,7 @@ const Reports = () => {
   return (
     <>
       <div className="bg-[rgba(255,255,255,0.6)] rounded-[19px] p-[13px] mb-[23px]">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-30px">
             <div>
                 <h1 className="text-[24px] font-semibold text-gray-900 leading-[32px]">Отчеты</h1>
                 <p className="text-[14px] text-[#727272]">Отчеты сотрудников за выбранный период</p>

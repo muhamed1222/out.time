@@ -1,21 +1,24 @@
 import React from 'react'
 import useAuth from '../../hooks/useAuth'
+import { useNavigate } from 'react-router-dom'
 
 const BellIcon = () => (
-    <svg className="w-[24px] h-[24px]" viewBox="0 0 18 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M15 14.5C15 12.3783 15 11.3174 14.5607 10.4382C14.1689 9.64831 13.4809 8.96029 12.0927 7.58425L11.5 7M3 14.5C3 12.3783 3 11.3174 3.43934 10.4382C3.83112 9.64831 4.51914 8.96029 5.90732 7.58425L6.5 7M11.5 7C11.5 4.23858 9.26142 2 6.5 2C3.73858 2 1.5 4.23858 1.5 7L1.5 9.5M6.5 7C6.5 4.23858 8.73858 2 11.5 2C14.2614 2 16.5 4.23858 16.5 7L16.5 9.5M7 17.5C7.33333 18.5 8.1 19.5 9 19.5C9.9 19.5 10.6667 18.5 11 17.5" stroke="#727272" strokeWidth="1.5" strokeLinecap="round"/>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M6 9C6 6.23858 8.23858 4 11 4H13C15.7614 4 18 6.23858 18 9V15C18 16.1046 17.1046 17 16 17H8C6.89543 17 6 16.1046 6 15V9Z" stroke="#727272" strokeWidth="1.5"/>
+        <path d="M10 20H14" stroke="#727272" strokeWidth="1.5" strokeLinecap="round"/>
     </svg>
 );
 
 const Header = () => {
   const { user, logout } = useAuth()
+  const navigate = useNavigate()
 
   return (
     <header className="py-[13px]">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-[32px] font-semibold text-[#101010]">
-            Outcasts агентство
+            {user?.company?.name}
           </h1>
         </div>
         
@@ -24,24 +27,40 @@ const Header = () => {
             <BellIcon />
           </div>
           
-          <div className="flex items-center gap-[12px]">
-            <div className="bg-[#fdfdfd] rounded-full w-[48px] h-[48px] flex items-center justify-center cursor-pointer">
-              <img
-                src={`https://i.pravatar.cc/40?u=${user?.email}`}
-                alt="Avatar"
-                className="w-[40px] h-[40px] rounded-full"
-              />
+          <div className="relative group">
+            <div className="flex items-center cursor-pointer">
+              <div className="text-right">
+                <div className="font-semibold text-[#101010]">{user?.name}</div>
+              </div>
+              <div className="w-[48px] h-[48px] bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
+                <img
+                  src={`https://i.pravatar.cc/48?u=${user?.email}`}
+                  alt="Avatar"
+                  className="w-full h-full object-cover"
+                />
+              </div>
             </div>
-            <div className="text-sm">
-              <div className="font-medium text-gray-900">{user?.company?.name}</div>
-              <div className="text-gray-500">{user?.email}</div>
+
+            <div className="absolute hidden group-hover:block right-0 top-full w-56 bg-white rounded-[16px] shadow-lg py-2 z-10 border border-gray-100">
+              <div className="px-4 py-2 border-b">
+                <p className="text-sm font-medium text-gray-900">{user?.name}</p>
+                <p className="text-sm text-gray-500 truncate">{user?.email}</p>
+              </div>
+              <div className="py-1">
+                <button
+                  onClick={() => navigate('/settings')}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                >
+                  Настройки
+                </button>
+                <button 
+                  onClick={logout} 
+                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center gap-2"
+                >
+                  Выйти
+                </button>
+              </div>
             </div>
-            <button
-              onClick={logout}
-              className="text-sm text-gray-500 hover:text-gray-700 font-medium"
-            >
-              Выйти
-            </button>
           </div>
         </div>
       </div>

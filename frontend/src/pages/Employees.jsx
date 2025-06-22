@@ -75,7 +75,7 @@ const Employees = () => {
 
   return (
     <div className="bg-[rgba(255,255,255,0.6)] rounded-[19px] p-[13px]">
-      <div className="mb-[20px] flex items-center justify-between">
+      <div className="mb-[30px] flex items-center justify-between">
         <div>
           <h1 className="text-[24px] font-semibold text-gray-900 leading-[32px]">Сотрудники</h1>
           <p className="text-[14px] text-[#727272]">Управление сотрудниками компании</p>
