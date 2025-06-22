@@ -88,6 +88,25 @@ class TimeRecord {
     const result = await pool.query(query, [companyId, date]);
     return result.rows[0];
   }
+
+  static async findLateToday(companyId) {
+    const query = `
+      SELECT 
+        tr.employee_id,
+        tr.start_time,
+        tr.date,
+        e.name as employee_name
+      FROM time_records tr
+      JOIN employees e ON tr.employee_id = e.id
+      JOIN companies c ON e.company_id = c.id
+      WHERE e.company_id = $1
+        AND tr.date = CURRENT_DATE
+        AND tr.status = 'work'
+        AND tr.start_time::time > c.morning_notification_time;
+    `;
+    const result = await pool.query(query, [companyId]);
+    return result.rows;
+  }
 }
 
 module.exports = TimeRecord; 

@@ -1,13 +1,7 @@
 import React from 'react'
 import useAuth from '../../hooks/useAuth'
 import { useNavigate } from 'react-router-dom'
-
-const BellIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <path d="M6 9C6 6.23858 8.23858 4 11 4H13C15.7614 4 18 6.23858 18 9V15C18 16.1046 17.1046 17 16 17H8C6.89543 17 6 16.1046 6 15V9Z" stroke="#727272" strokeWidth="1.5"/>
-        <path d="M10 20H14" stroke="#727272" strokeWidth="1.5" strokeLinecap="round"/>
-    </svg>
-);
+import Notifications from '../ui/Notifications';
 
 const Header = () => {
   const { user, logout } = useAuth()
@@ -23,9 +17,7 @@ const Header = () => {
         </div>
         
         <div className="flex items-center gap-[12px]">
-          <div className="bg-[#fdfdfd] rounded-full w-[48px] h-[48px] flex items-center justify-center cursor-pointer">
-            <BellIcon />
-          </div>
+          <Notifications />
           
           <div className="relative group">
             <div className="flex items-center cursor-pointer">

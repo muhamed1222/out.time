@@ -88,6 +88,19 @@ class Employee {
     const result = await pool.query(query);
     return result.rows;
   }
+
+  static async findRecent(companyId, sinceDate) {
+    const query = `
+      SELECT id, name, created_at
+      FROM employees
+      WHERE company_id = $1
+        AND is_active = true
+        AND created_at >= $2
+      ORDER BY created_at DESC;
+    `;
+    const result = await pool.query(query, [companyId, sinceDate]);
+    return result.rows;
+  }
 }
 
 module.exports = Employee; 

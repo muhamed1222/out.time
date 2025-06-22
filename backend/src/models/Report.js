@@ -119,6 +119,24 @@ class Report {
     const result = await pool.query(query, [employeeId, start, end]);
     return result.rows;
   }
+
+  static async findEmployeesWithoutReport(companyId, date) {
+    const query = `
+      SELECT e.id, e.name
+      FROM employees e
+      -- Сотрудник должен был работать в этот день
+      JOIN time_records tr ON e.id = tr.employee_id
+      -- И у него нет отчета за этот день
+      LEFT JOIN reports r ON e.id = r.employee_id AND r.date = $2
+      WHERE e.company_id = $1
+        AND e.is_active = true
+        AND tr.date = $2
+        AND tr.status = 'work'
+        AND r.id IS NULL;
+    `;
+    const result = await pool.query(query, [companyId, date]);
+    return result.rows;
+  }
 }
 
 module.exports = Report; 

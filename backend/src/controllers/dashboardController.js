@@ -1,6 +1,7 @@
 const TimeRecord = require('../models/TimeRecord');
 const Report = require('../models/Report');
 const Employee = require('../models/Employee');
+const DashboardService = require('../services/dashboardService');
 
 class DashboardController {
   static async getDashboardData(req, res) {
@@ -140,6 +141,19 @@ class DashboardController {
       console.error('Ошибка получения быстрых действий:', error.message);
       res.status(500).json({
         error: 'Ошибка сервера при получении быстрых действий'
+      });
+    }
+  }
+
+  static async getNotifications(req, res) {
+    try {
+      const { companyId } = req.user;
+      const notifications = await DashboardService.getNotifications(companyId);
+      res.json(notifications);
+    } catch (error) {
+      console.error('Ошибка получения уведомлений:', error.message);
+      res.status(500).json({
+        error: 'Ошибка сервера при получении уведомлений'
       });
     }
   }

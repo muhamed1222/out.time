@@ -14,5 +14,10 @@ export const dashboardService = {
   async getQuickActions() {
     const response = await api.get('/dashboard/quick-actions')
     return response.data
+  },
+
+  async getNotifications() {
+    const response = await api.get('/dashboard/notifications');
+    return response.data;
   }
 }

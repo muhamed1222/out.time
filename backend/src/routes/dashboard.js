@@ -16,4 +16,7 @@ router.get('/weekly', DashboardController.getWeeklyStats);
 // Быстрые действия и уведомления
 router.get('/quick-actions', DashboardController.getQuickActions);
 
+// Уведомления
+router.get('/notifications', DashboardController.getNotifications);
+
 module.exports = router; 
