@@ -48,7 +48,10 @@ class Report {
       JOIN employees e ON r.employee_id = e.id
       WHERE e.company_id = $1 AND r.date BETWEEN $2 AND $3
     `;
-    const values = [companyId, startDate, endDate];
+    
+    const start = new Date(startDate).toISOString().split('T')[0];
+    const end = new Date(endDate).toISOString().split('T')[0];
+    const values = [companyId, start, end];
 
     if (employeeId) {
       query += ' AND r.employee_id = $4';
@@ -100,6 +103,21 @@ class Report {
     const query = 'DELETE FROM reports WHERE id = $1 RETURNING *';
     const result = await pool.query(query, [id]);
     return result.rows[0];
+  }
+
+  static async findByEmployeeAndDateRange(employeeId, startDate, endDate) {
+    const query = `
+      SELECT * FROM reports 
+      WHERE employee_id = $1 
+      AND date >= $2
+      AND date <= $3
+      ORDER BY date DESC
+    `;
+    const start = new Date(startDate).toISOString().split('T')[0];
+    const end = new Date(endDate).toISOString().split('T')[0];
+
+    const result = await pool.query(query, [employeeId, start, end]);
+    return result.rows;
   }
 }
 

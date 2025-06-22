@@ -9,6 +9,7 @@ import EmployeeDetail from './pages/EmployeeDetail'
 import Reports from './pages/Reports'
 import Settings from './pages/Settings'
 import Login from './pages/Login'
+import Register from './pages/Register'
 
 function App() {
   const { isAuthenticated } = useAuth()
@@ -21,6 +22,12 @@ function App() {
           path="/login" 
           element={
             isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />
+          } 
+        />
+        <Route 
+          path="/register" 
+          element={
+            isAuthenticated ? <Navigate to="/dashboard" replace /> : <Register />
           } 
         />
         

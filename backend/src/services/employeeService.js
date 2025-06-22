@@ -131,31 +131,71 @@ class EmployeeService {
       throw new Error('Сотрудник не найден');
     }
 
-    const today = new Date().toISOString().split('T')[0];
-    const weekStart = new Date();
-    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-    const weekStartStr = weekStart.toISOString().split('T')[0];
+    const now = new Date();
+    const todayStart = new Date(now);
+    todayStart.setUTCHours(0, 0, 0, 0);
+    const todayEnd = new Date(now);
+    todayEnd.setUTCHours(23, 59, 59, 999);
 
-    // Получаем данные за сегодня
-    const todayRecord = await TimeRecord.findByEmployeeAndDate(employeeId, today);
-    const todayReport = await Report.findByEmployeeAndDate(employeeId, today);
+    const weekStart = new Date(todayStart);
+    weekStart.setUTCDate(weekStart.getUTCDate() - weekStart.getUTCDay() + (weekStart.getUTCDay() === 0 ? -6 : 1));
+    
+    const weekEnd = new Date(weekStart);
+    weekEnd.setUTCDate(weekEnd.getUTCDate() + 6);
+    weekEnd.setUTCHours(23, 59, 59, 999);
 
-    // Получаем статистику за неделю
-    const weekRecords = await TimeRecord.findByEmployeeAndDateRange(employeeId, weekStartStr, today);
-    const weekReports = await Report.findByEmployee(employeeId, 10, 0);
+    const [todayRecords, todayReports, weekRecords, weekReports, recentReports] = await Promise.all([
+      TimeRecord.findByEmployeeAndDateRange(employeeId, todayStart.toISOString(), todayEnd.toISOString()),
+      Report.findByEmployeeAndDateRange(employeeId, todayStart.toISOString(), todayEnd.toISOString()),
+      TimeRecord.findByEmployeeAndDateRange(employeeId, weekStart.toISOString(), weekEnd.toISOString()),
+      Report.findByEmployeeAndDateRange(employeeId, weekStart.toISOString(), weekEnd.toISOString()),
+      Report.findByEmployee(employeeId, 10)
+    ]);
+    
+    const todayRecord = todayRecords[0];
+    const todayReport = todayReports[0];
+
+    const workingDays = weekRecords.filter(record => 
+      record.status === 'work' && record.start_time !== null
+    ).length;
+
+    let totalWorkMinutes = 0;
+    weekRecords.forEach(record => {
+      if (record.status === 'work' && record.start_time) {
+        const startTime = new Date(record.start_time);
+        const endTime = record.end_time ? new Date(record.end_time) : new Date();
+        totalWorkMinutes += Math.floor((endTime - startTime) / (1000 * 60));
+      }
+    });
+
+    const totalWorkHours = Math.floor(totalWorkMinutes / 60);
+    const remainingMinutes = Math.round(totalWorkMinutes % 60);
+
+    let currentStatus = 'not_started';
+    if (todayRecord) {
+      if (todayRecord.end_time) {
+        currentStatus = 'finished';
+      } else if (todayRecord.start_time) {
+        currentStatus = 'working';
+      }
+      if (todayRecord.status !== 'work') {
+        currentStatus = todayRecord.status;
+      }
+    }
 
     return {
       employee,
       today: {
+        status: currentStatus,
         timeRecord: todayRecord,
         report: todayReport
       },
       weekStats: {
-        totalDays: weekRecords.length,
-        totalHours: this.calculateTotalHours(weekRecords),
+        workingDays,
+        totalHours: `${totalWorkHours}ч ${remainingMinutes}мин`,
         reportsCount: weekReports.length
       },
-      recentReports: weekReports.slice(0, 5)
+      recentReports
     };
   }
 

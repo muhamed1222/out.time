@@ -13,8 +13,10 @@ class Employee {
   }
 
   static async findByTelegramId(telegramId) {
+    console.log('Поиск сотрудника по Telegram ID:', telegramId);
     const query = 'SELECT * FROM employees WHERE telegram_id = $1 AND is_active = true';
     const result = await pool.query(query, [telegramId]);
+    console.log('Результат поиска:', result.rows[0]);
     return result.rows[0];
   }
 

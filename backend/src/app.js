@@ -59,7 +59,10 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API маршруты
+// Публичные API маршруты (без аутентификации)
+app.use('/api/public', require('./routes/public'));
+
+// Защищенные API маршруты
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/employees', require('./routes/employees'));
 app.use('/api/reports', require('./routes/reports'));

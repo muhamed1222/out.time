@@ -18,10 +18,25 @@ class TimeRecord {
     return result.rows[0];
   }
 
+  static async findByEmployeeAndDateRange(employeeId, startDate, endDate) {
+    const query = `
+      SELECT * FROM time_records 
+      WHERE employee_id = $1 
+      AND date >= $2
+      AND date <= $3
+      ORDER BY date DESC
+    `;
+    const start = new Date(startDate).toISOString().split('T')[0];
+    const end = new Date(endDate).toISOString().split('T')[0];
+    
+    const result = await pool.query(query, [employeeId, start, end]);
+    return result.rows;
+  }
+
   static async updateEndTime(employeeId, date, endTime) {
     const query = `
       UPDATE time_records 
-      SET end_time = $3 
+      SET end_time = $3, updated_at = CURRENT_TIMESTAMP
       WHERE employee_id = $1 AND date = $2
       RETURNING *
     `;
@@ -29,14 +44,15 @@ class TimeRecord {
     return result.rows[0];
   }
 
-  static async findByEmployeeAndDateRange(employeeId, startDate, endDate) {
+  static async updateStatus(employeeId, date, status) {
     const query = `
-      SELECT * FROM time_records 
-      WHERE employee_id = $1 AND date BETWEEN $2 AND $3
-      ORDER BY date DESC
+      UPDATE time_records 
+      SET status = $3, updated_at = CURRENT_TIMESTAMP
+      WHERE employee_id = $1 AND date = $2
+      RETURNING *
     `;
-    const result = await pool.query(query, [employeeId, startDate, endDate]);
-    return result.rows;
+    const result = await pool.query(query, [employeeId, date, status]);
+    return result.rows[0];
   }
 
   static async findByCompanyAndDate(companyId, date) {
@@ -54,27 +70,22 @@ class TimeRecord {
   static async getCompanyStats(companyId, date) {
     const query = `
       SELECT 
-        COUNT(*) as total_employees,
-        COUNT(CASE WHEN tr.start_time IS NOT NULL THEN 1 END) as working_today,
-        COUNT(CASE WHEN tr.status = 'sick' THEN 1 END) as sick_today,
-        COUNT(CASE WHEN tr.status = 'vacation' THEN 1 END) as vacation_today,
-        AVG(EXTRACT(EPOCH FROM (tr.end_time - tr.start_time))/3600) as avg_work_hours
+        COUNT(DISTINCT e.id) as total_employees,
+        COUNT(DISTINCT CASE WHEN tr.start_time IS NOT NULL THEN e.id END) as working_today,
+        COUNT(DISTINCT CASE WHEN tr.status = 'sick' THEN e.id END) as sick_today,
+        COUNT(DISTINCT CASE WHEN tr.status = 'vacation' THEN e.id END) as vacation_today,
+        AVG(CASE 
+          WHEN tr.start_time IS NOT NULL AND tr.end_time IS NOT NULL 
+          THEN EXTRACT(EPOCH FROM (tr.end_time - tr.start_time))/3600 
+          WHEN tr.start_time IS NOT NULL 
+          THEN EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - tr.start_time))/3600
+          ELSE NULL 
+        END) as avg_work_hours
       FROM employees e
       LEFT JOIN time_records tr ON e.id = tr.employee_id AND tr.date = $2
       WHERE e.company_id = $1 AND e.is_active = true
     `;
     const result = await pool.query(query, [companyId, date]);
-    return result.rows[0];
-  }
-
-  static async updateStatus(employeeId, date, status) {
-    const query = `
-      UPDATE time_records 
-      SET status = $3 
-      WHERE employee_id = $1 AND date = $2
-      RETURNING *
-    `;
-    const result = await pool.query(query, [employeeId, date, status]);
     return result.rows[0];
   }
 }

@@ -1,10 +1,13 @@
 const express = require('express');
 const EmployeeController = require('../controllers/employeeController');
 const { authenticateToken, checkEmployeeAccess } = require('../middleware/auth');
+const Employee = require('../models/Employee');
+const TimeRecord = require('../models/TimeRecord');
+const Report = require('../models/Report');
 
 const router = express.Router();
 
-// Все маршруты требуют авторизации
+// Защищенные маршруты
 router.use(authenticateToken);
 
 // Получение списка сотрудников компании
