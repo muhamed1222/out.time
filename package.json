@@ -8,6 +8,7 @@
     "dev:backend": "cd backend && pnpm dev",
     "dev:frontend": "cd frontend && pnpm dev",
     "build": "cd frontend && pnpm build",
+    "build:deploy": "./build-script.sh",
     "install:all": "pnpm install --filter backend && pnpm install --filter frontend",
     "start": "cd backend && pnpm start"
   },
