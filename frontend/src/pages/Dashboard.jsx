@@ -1,6 +1,45 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react';
+import { dashboardService } from '../services/dashboardService';
+import { toast } from 'react-hot-toast';
 
 const Dashboard = () => {
+  const [dashboardData, setDashboardData] = useState({
+    todayStats: {
+      totalEmployees: 0,
+      workingToday: 0,
+      sickToday: 0,
+      vacationToday: 0,
+      reportsToday: 0,
+      averageWorkHours: '0.0'
+    },
+    recentReports: [],
+    employeeStats: []
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  const loadDashboardData = async () => {
+    try {
+      const data = await dashboardService.getDashboardData();
+      setDashboardData(data);
+    } catch (error) {
+      toast.error('Не удалось загрузить данные дашборда');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="mb-6">
@@ -20,23 +59,9 @@ const Dashboard = () => {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Работают сегодня</p>
-              <p className="text-2xl font-semibold text-gray-900">12/15</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="card">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Средний день</p>
-              <p className="text-2xl font-semibold text-gray-900">8.2ч</p>
+              <p className="text-2xl font-semibold text-gray-900">
+                {dashboardData.todayStats.workingToday}/{dashboardData.todayStats.totalEmployees}
+              </p>
             </div>
           </div>
         </div>
@@ -46,13 +71,29 @@ const Dashboard = () => {
             <div className="flex-shrink-0">
               <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
                 <svg className="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
               </div>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Отчеты сданы</p>
-              <p className="text-2xl font-semibold text-gray-900">8/12</p>
+              <p className="text-sm font-medium text-gray-500">Отчеты сегодня</p>
+              <p className="text-2xl font-semibold text-gray-900">{dashboardData.todayStats.reportsToday}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-500">Средняя продолжительность</p>
+              <p className="text-2xl font-semibold text-gray-900">{dashboardData.todayStats.averageWorkHours}ч</p>
             </div>
           </div>
         </div>
@@ -67,8 +108,10 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Продуктивность</p>
-              <p className="text-2xl font-semibold text-gray-900">94%</p>
+              <p className="text-sm font-medium text-gray-500">Отсутствуют</p>
+              <p className="text-2xl font-semibold text-gray-900">
+                {dashboardData.todayStats.sickToday + dashboardData.todayStats.vacationToday}
+              </p>
             </div>
           </div>
         </div>
@@ -77,23 +120,32 @@ const Dashboard = () => {
       <div className="card">
         <h3 className="text-lg font-medium text-gray-900 mb-4">Последние отчеты</h3>
         <div className="space-y-3">
-          <div className="flex items-center justify-between py-2 border-b border-gray-100">
-            <div>
-              <p className="font-medium text-gray-900">Иван Петров</p>
-              <p className="text-sm text-gray-500">Работал с API интеграцией</p>
+          {dashboardData.recentReports.length > 0 ? (
+            dashboardData.recentReports.map((report) => (
+              <div key={report.id} className="flex items-center justify-between py-2 border-b border-gray-100">
+                <div>
+                  <p className="font-medium text-gray-900">{report.employeeName}</p>
+                  <p className="text-sm text-gray-500">{report.content}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-900">
+                    {new Date(report.date).toLocaleDateString('ru-RU')}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {new Date(report.createdAt).toLocaleTimeString('ru-RU')}
+                  </p>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-4">
+              <p className="text-gray-500">Нет отчетов за сегодня</p>
             </div>
-            <div className="text-right">
-              <p className="text-sm text-gray-900">8.5 часов</p>
-              <p className="text-xs text-gray-500">15 минут назад</p>
-            </div>
-          </div>
-          <div className="text-center py-4">
-            <p className="text-gray-500">Загрузка данных...</p>
-          </div>
+          )}
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Dashboard 
+export default Dashboard; 

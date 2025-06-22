@@ -12,7 +12,7 @@ class EmployeeService {
     });
 
     // Генерируем ссылку для Telegram бота
-    const botUsername = process.env.BOT_USERNAME || 'outtime_bot';
+    const botUsername = process.env.BOT_USERNAME || 'outtimeagency_bot';
     const inviteLink = `https://t.me/${botUsername}?start=${invite.token}`;
 
     return {

@@ -11,7 +11,7 @@ export const employeeService = {
     return response.data
   },
 
-  async inviteEmployee(name) {
+  async createInvite(name) {
     const response = await api.post('/employees/invite', { name })
     return response.data
   },

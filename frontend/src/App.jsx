@@ -1,23 +1,21 @@
 import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import useAuth from './hooks/useAuth'
-
-// Компоненты страниц
-import Login from './pages/Login'
+import { Toaster } from 'react-hot-toast'
+import Layout from './components/layout/Layout'
 import Dashboard from './pages/Dashboard'
 import Employees from './pages/Employees'
 import EmployeeDetail from './pages/EmployeeDetail'
 import Reports from './pages/Reports'
 import Settings from './pages/Settings'
-
-// Компонент лейаута
-import Layout from './components/layout/Layout'
+import Login from './pages/Login'
 
 function App() {
   const { isAuthenticated } = useAuth()
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+      <Toaster position="top-right" />
       <Routes>
         <Route 
           path="/login" 
@@ -39,7 +37,7 @@ function App() {
           <Route path="*" element={<Navigate to="/login" replace />} />
         )}
       </Routes>
-    </div>
+    </>
   )
 }
 
