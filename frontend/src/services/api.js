@@ -27,6 +27,10 @@ api.interceptors.response.use(
       localStorage.removeItem('token')
       window.location.href = '/login'
     }
+    // Добавляем обработку 404 ошибки
+    if (error.response?.status === 404) {
+      console.error('Ресурс не найден:', error.response.data)
+    }
     return Promise.reject(error)
   }
 )

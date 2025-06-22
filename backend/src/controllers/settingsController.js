@@ -1,129 +1,169 @@
 const Company = require('../models/Company');
 const { body, validationResult } = require('express-validator');
+const pool = require('../config/database');
 
 class SettingsController {
   // Валидация для обновления настроек
   static validateSettings = [
-    body('companyName')
+    body('name')
       .optional()
       .isLength({ min: 2, max: 100 })
       .trim()
       .escape()
       .withMessage('Название компании должно содержать от 2 до 100 символов'),
-    body('morningTime')
+    body('morning_notification_time')
       .optional()
-      .matches(/^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/)
-      .withMessage('Неверный формат времени утреннего уведомления (HH:MM:SS)'),
-    body('eveningTime')
+      .matches(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/)
+      .withMessage('Неверный формат времени утреннего уведомления (HH:MM)'),
+    body('evening_notification_time')
       .optional()
-      .matches(/^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/)
-      .withMessage('Неверный формат времени вечернего уведомления (HH:MM:SS)'),
-    body('timezone')
-      .optional()
-      .isLength({ min: 3, max: 50 })
-      .withMessage('Неверный формат часового пояса')
+      .matches(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/)
+      .withMessage('Неверный формат времени вечернего уведомления (HH:MM)')
   ];
 
   static async getSettings(req, res) {
     try {
+      console.log('Получение настроек для компании:', req.user.companyId);
+      
       const companyId = req.user.companyId;
       
-      const company = await Company.findById(companyId);
+      // Проверяем существование компании
+      const companyQuery = 'SELECT id FROM companies WHERE id = $1';
+      const companyResult = await pool.query(companyQuery, [companyId]);
       
-      if (!company) {
-        return res.status(404).json({
-          error: 'Компания не найдена'
-        });
+      if (companyResult.rows.length === 0) {
+        console.log('Компания не найдена');
+        return res.status(404).json({ error: 'Компания не найдена' });
       }
 
-      res.json({
-        settings: {
-          companyId: company.id,
-          companyName: company.name,
-          morningNotificationTime: company.morning_notification_time,
-          eveningNotificationTime: company.evening_notification_time,
-          timezone: company.timezone,
-          createdAt: company.created_at,
-          updatedAt: company.updated_at
-        }
-      });
+      const query = `
+        SELECT 
+          name,
+          to_char(morning_notification_time, 'HH24:MI') as morning_notification_time,
+          to_char(evening_notification_time, 'HH24:MI') as evening_notification_time 
+        FROM companies 
+        WHERE id = $1
+      `;
+      
+      console.log('SQL запрос:', query);
+      console.log('Параметры:', [companyId]);
+      
+      const result = await pool.query(query, [companyId]);
+      console.log('Результат запроса:', result.rows);
+      
+      if (result.rows.length === 0) {
+        console.log('Компания не найдена');
+        return res.status(404).json({ error: 'Компания не найдена' });
+      }
 
+      console.log('Отправка настроек клиенту:', result.rows[0]);
+      res.json(result.rows[0]);
     } catch (error) {
-      console.error('Ошибка получения настроек:', error.message);
-      res.status(500).json({
-        error: 'Ошибка сервера при получении настроек'
-      });
+      console.error('Ошибка получения настроек:', error);
+      res.status(500).json({ error: 'Ошибка сервера' });
     }
   }
 
   static async updateSettings(req, res) {
     try {
-      // Проверка валидации
+      console.log('Обновление настроек. Тело запроса:', req.body);
+      console.log('ID компании:', req.user.companyId);
+
+      // Проверяем валидацию
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        return res.status(400).json({
-          error: 'Ошибка валидации данных',
-          details: errors.array()
-        });
+        console.log('Ошибки валидации:', errors.array());
+        return res.status(400).json({ errors: errors.array() });
       }
 
       const companyId = req.user.companyId;
-      const { 
-        companyName, 
-        morningTime, 
-        eveningTime, 
-        timezone 
-      } = req.body;
-
-      // Получаем текущие настройки
-      const currentCompany = await Company.findById(companyId);
-      if (!currentCompany) {
-        return res.status(404).json({
-          error: 'Компания не найдена'
-        });
+      
+      // Проверяем существование компании
+      const companyQuery = 'SELECT id FROM companies WHERE id = $1';
+      const companyResult = await pool.query(companyQuery, [companyId]);
+      
+      if (companyResult.rows.length === 0) {
+        console.log('Компания не найдена');
+        return res.status(404).json({ error: 'Компания не найдена' });
       }
 
-      // Подготавливаем данные для обновления
-      const updateData = {
-        name: companyName || currentCompany.name,
-        morningTime: morningTime || currentCompany.morning_notification_time,
-        eveningTime: eveningTime || currentCompany.evening_notification_time,
-        timezone: timezone || currentCompany.timezone
-      };
+      const { morning_notification_time, evening_notification_time, name } = req.body;
 
-      // Валидация времени
-      if (updateData.morningTime === updateData.eveningTime) {
-        return res.status(400).json({
-          error: 'Время утреннего и вечернего уведомлений не может быть одинаковым'
-        });
-      }
+      // Добавляем секунды к времени для сохранения в базу
+      const morningTime = morning_notification_time ? `${morning_notification_time}:00` : null;
+      const eveningTime = evening_notification_time ? `${evening_notification_time}:00` : null;
 
-      // Обновляем настройки
-      const updatedCompany = await Company.update(companyId, updateData);
-
-      res.json({
-        message: 'Настройки успешно обновлены',
-        settings: {
-          companyId: updatedCompany.id,
-          companyName: updatedCompany.name,
-          morningNotificationTime: updatedCompany.morning_notification_time,
-          eveningNotificationTime: updatedCompany.evening_notification_time,
-          timezone: updatedCompany.timezone,
-          updatedAt: updatedCompany.updated_at
-        }
+      console.log('Подготовленные данные:', {
+        morningTime,
+        eveningTime,
+        name,
+        companyId
       });
 
+      const query = `
+        UPDATE companies 
+        SET 
+          morning_notification_time = COALESCE($1::time, morning_notification_time),
+          evening_notification_time = COALESCE($2::time, evening_notification_time),
+          name = COALESCE($3, name),
+          updated_at = CURRENT_TIMESTAMP
+        WHERE id = $4
+        RETURNING 
+          name,
+          to_char(morning_notification_time, 'HH24:MI') as morning_notification_time,
+          to_char(evening_notification_time, 'HH24:MI') as evening_notification_time
+      `;
+
+      console.log('SQL запрос:', query);
+      console.log('Параметры запроса:', [morningTime, eveningTime, name || null, companyId]);
+
+      const result = await pool.query(query, [
+        morningTime,
+        eveningTime,
+        name || null,
+        companyId
+      ]);
+
+      console.log('Результат запроса:', result.rows);
+
+      if (result.rows.length === 0) {
+        console.log('Компания не найдена при обновлении');
+        return res.status(404).json({ error: 'Компания не найдена' });
+      }
+
+      // Проверяем, что данные действительно обновились
+      const verificationQuery = `
+        SELECT 
+          name,
+          to_char(morning_notification_time, 'HH24:MI') as morning_notification_time,
+          to_char(evening_notification_time, 'HH24:MI') as evening_notification_time 
+        FROM companies 
+        WHERE id = $1
+      `;
+      const verification = await pool.query(verificationQuery, [companyId]);
+      console.log('Проверка обновленных данных:', verification.rows[0]);
+
+      console.log('Отправка обновленных настроек клиенту:', result.rows[0]);
+      res.json(result.rows[0]);
     } catch (error) {
-      console.error('Ошибка обновления настроек:', error.message);
-      res.status(500).json({
-        error: 'Ошибка сервера при обновлении настроек'
-      });
+      console.error('Ошибка обновления настроек:', error);
+      res.status(500).json({ error: 'Ошибка сервера' });
     }
   }
 
   static async getNotificationPreview(req, res) {
     try {
       const companyId = req.user.companyId;
+      
+      // Проверяем существование компании
+      const companyQuery = 'SELECT id FROM companies WHERE id = $1';
+      const companyResult = await pool.query(companyQuery, [companyId]);
+      
+      if (companyResult.rows.length === 0) {
+        console.log('Компания не найдена');
+        return res.status(404).json({ error: 'Компания не найдена' });
+      }
+
       const company = await Company.findById(companyId);
       
       if (!company) {
@@ -165,6 +205,15 @@ class SettingsController {
   static async getCompanyStats(req, res) {
     try {
       const companyId = req.user.companyId;
+      
+      // Проверяем существование компании
+      const companyQuery = 'SELECT id FROM companies WHERE id = $1';
+      const companyResult = await pool.query(companyQuery, [companyId]);
+      
+      if (companyResult.rows.length === 0) {
+        console.log('Компания не найдена');
+        return res.status(404).json({ error: 'Компания не найдена' });
+      }
       
       const Employee = require('../models/Employee');
       const TimeRecord = require('../models/TimeRecord');
