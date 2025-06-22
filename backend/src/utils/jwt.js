@@ -22,7 +22,7 @@ const generateAuthTokens = (user) => {
   const payload = {
     userId: user.id,
     email: user.email,
-    companyId: user.company_id,
+    companyId: user.company_id || user.companyId,
     iat: Math.floor(Date.now() / 1000)
   };
 
