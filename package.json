@@ -1,0 +1,25 @@
+{
+  "name": "out-time",
+  "version": "1.0.0",
+  "description": "Out Time - Система учета рабочего времени",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"cd backend && pnpm dev\" \"cd frontend && pnpm dev\"",
+    "dev:backend": "cd backend && pnpm dev",
+    "dev:frontend": "cd frontend && pnpm dev",
+    "build": "cd frontend && pnpm build",
+    "install:all": "pnpm install --filter backend && pnpm install --filter frontend",
+    "start": "cd backend && pnpm start"
+  },
+  "keywords": ["nodejs", "react", "postgresql", "telegram-bot", "time-tracking"],
+  "author": "Outcasts",
+  "license": "ISC",
+  "packageManager": "pnpm@10.12.1",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+} 

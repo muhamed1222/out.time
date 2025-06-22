@@ -1,0 +1,43 @@
+{
+  "name": "outtime-backend",
+  "version": "1.0.0",
+  "description": "Backend for Out Time - employee time tracking system",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "migrate": "node migrations/migrate.js",
+    "migrate:seed": "node migrations/migrate.js --seed",
+    "db:reset": "psql $DATABASE_URL -c \"DROP SCHEMA public CASCADE; CREATE SCHEMA public;\"",
+    "db:setup": "npm run migrate:seed",
+    "test": "echo \"Tests not implemented yet\"",
+    "logs": "tail -f logs/combined.log"
+  },
+  "keywords": [
+    "time-tracking",
+    "telegram-bot",
+    "employee-management"
+  ],
+  "author": "Outcasts",
+  "license": "ISC",
+  "packageManager": "pnpm@10.12.1",
+  "dependencies": {
+    "bcrypt": "6.0.0",
+    "cors": "2.8.5",
+    "dotenv": "16.5.0",
+    "exceljs": "4.4.0",
+    "express": "4.19.2",
+    "express-validator": "7.2.1",
+    "helmet": "8.1.0",
+    "jsonwebtoken": "9.0.2",
+    "node-cron": "4.1.1",
+    "node-fetch": "^2.7.0",
+    "pg": "8.16.2",
+    "telegraf": "4.16.3",
+    "uuid": "11.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.0.3",
+    "nodemon": "3.1.10"
+  }
+}

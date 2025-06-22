@@ -1,0 +1,31 @@
+
+> outtime-backend@1.0.0 start /Users/outcasts/Documents/out.time/backend
+> node server.js
+
+🚀 Запуск сервера Out Time...
+🤖 Запуск Telegram бота...
+✅ API сервер запущен на порту 3000
+🌐 Swagger документация: http://localhost:3000/api-docs
+⚠️ Ошибка запуска бота (продолжаем без бота): 401: Unauthorized
+💡 Проверьте BOT_TOKEN в .env файле
+🕐 Инициализация планировщика уведомлений...
+✅ Планировщик уведомлений запущен
+   📅 Утренние уведомления: 9:00 (пн-пт)
+   📅 Вечерние уведомления: 18:00 (пн-пт)
+   📅 Напоминания опоздавшим: 10:00 (пн-пт)
+   📅 Очистка приглашений: 00:00 (ежедневно)
+
+🎉 Система Out Time успешно запущена!
+📊 Компоненты:
+   ✅ API сервер (Express.js)
+   ✅ Telegram бот
+   ✅ Планировщик уведомлений
+   ✅ База данных PostgreSQL
+
+🧪 Режим разработки активен
+💡 Для тестирования используйте:
+   - API: http://localhost:3000/api
+   - Healthcheck: http://localhost:3000/health
+2025-06-21T22:31:01.173Z - GET /health
+2025-06-21T22:31:14.418Z - POST /api/auth/login
+Ошибка авторизации: role "username" does not exist
