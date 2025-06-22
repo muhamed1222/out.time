@@ -9,6 +9,8 @@
   
   body {
     @apply bg-gray-50 text-gray-900;
+    background-color: #F8F8F8;
+    font-family: 'Inter', sans-serif;
   }
 }
 
@@ -28,4 +30,9 @@
   .card {
     @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
   }
+}
+
+/* Скрываем стандартную иконку календаря */
+.custom-date-input::-webkit-calendar-picker-indicator {
+    display: none;
 } 

@@ -2,12 +2,37 @@ import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { employeeService } from '../services/employeeService'
 import { toast } from 'react-hot-toast'
+import { format } from 'date-fns'
+
+const StatusBadge = ({ status }) => {
+  const statusStyles = {
+    work: { text: 'Работает', color: '#51BE3F', bgColor: '#d4ffe3' },
+    sick: { text: 'Болеет', color: '#FF6C59', bgColor: '#ffe9e6' },
+    vacation: { text: 'Отпуск', color: '#727272', bgColor: '#f1f1f1' },
+    default: { text: 'Не активен', color: '#727272', bgColor: '#f1f1f1' },
+  };
+  const currentStatus = statusStyles[status] || statusStyles.default;
+
+  return (
+    <span style={{ color: currentStatus.color, backgroundColor: currentStatus.bgColor }} className="px-[10px] py-[4px] rounded-full text-[12px] font-medium">
+      {currentStatus.text}
+    </span>
+  )
+};
+
+const InfoCard = ({ title, children }) => (
+  <div className="bg-[#f8f8f8] rounded-[16px] p-[22px]">
+    <h3 className="text-[18px] font-semibold text-gray-900 mb-4">{title}</h3>
+    <div className="space-y-3 text-[14px]">
+      {children}
+    </div>
+  </div>
+);
 
 const EmployeeDetail = () => {
   const { id } = useParams()
   const [employee, setEmployee] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
 
   useEffect(() => {
     loadEmployeeDetails()
@@ -18,10 +43,7 @@ const EmployeeDetail = () => {
       setLoading(true)
       const data = await employeeService.getEmployee(id)
       setEmployee(data.employee)
-      setError(null)
     } catch (error) {
-      console.error('Ошибка загрузки данных сотрудника:', error)
-      setError(error.response?.data?.error || 'Не удалось загрузить данные сотрудника')
       toast.error(error.response?.data?.error || 'Не удалось загрузить данные сотрудника')
     } finally {
       setLoading(false)
@@ -31,153 +53,86 @@ const EmployeeDetail = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center h-64">
-        <div className="text-red-500 mb-4">{error}</div>
-        <button 
-          onClick={loadEmployeeDetails}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          Попробовать снова
-        </button>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
       </div>
     )
   }
 
   if (!employee) {
     return (
-      <div className="text-center py-8">
-        <p className="text-gray-500">Сотрудник не найден</p>
+      <div className="bg-[rgba(255,255,255,0.6)] rounded-[19px] p-[13px] text-center text-[#727272]">
+        Сотрудник не найден.
       </div>
     )
   }
 
-  return (
+  const InfoRow = ({ label, value }) => (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">{employee.name}</h1>
-        <p className="text-gray-600">Подробная информация о сотруднике</p>
-      </div>
+      <span className="text-gray-500">{label}:</span>
+      <span className="ml-2 font-medium text-gray-800">{value}</span>
+    </div>
+  )
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        {/* Основная информация */}
-        <div className="card">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Основная информация</h3>
-          <div className="space-y-3">
-            <div>
-              <span className="text-gray-500">Статус:</span>
-              <span className={`ml-2 px-2 py-1 rounded-full text-xs ${
-                employee.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-              }`}>
-                {employee.isActive ? 'Активен' : 'Неактивен'}
-              </span>
-            </div>
-            <div>
-              <span className="text-gray-500">Дата регистрации:</span>
-              <span className="ml-2">{new Date(employee.createdAt).toLocaleDateString('ru-RU')}</span>
-            </div>
-            {employee.telegramId && (
-              <div>
-                <span className="text-gray-500">Telegram ID:</span>
-                <span className="ml-2">{employee.telegramId}</span>
-              </div>
-            )}
-          </div>
+  return (
+    <div className="flex flex-col gap-[23px]">
+      <div className="bg-[rgba(255,255,255,0.6)] rounded-[19px] p-[13px]">
+        <div className="mb-6">
+          <h1 className="text-[24px] font-semibold text-gray-900 leading-[32px]">{employee.name}</h1>
+          <p className="text-[14px] text-[#727272]">Подробная информация о сотруднике</p>
         </div>
 
-        {/* Статистика за неделю */}
-        <div className="card">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Статистика за неделю</h3>
-          <div className="space-y-3">
-            <div>
-              <span className="text-gray-500">Рабочих дней:</span>
-              <span className="ml-2">{employee.weekStats?.totalDays || 0}</span>
-            </div>
-            <div>
-              <span className="text-gray-500">Отработано часов:</span>
-              <span className="ml-2">{employee.weekStats?.totalHours || '0ч 0мин'}</span>
-            </div>
-            <div>
-              <span className="text-gray-500">Отчетов за неделю:</span>
-              <span className="ml-2">{employee.weekStats?.reportsCount || 0}</span>
-            </div>
-          </div>
-        </div>
-      </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[3px]">
+          <InfoCard title="Основная информация">
+            <InfoRow label="Текущий статус" value={<StatusBadge status={employee.today?.timeRecord?.status || 'default'} />} />
+            <InfoRow label="Дата регистрации" value={format(new Date(employee.createdAt), 'dd.MM.yyyy')} />
+            {employee.telegramId && <InfoRow label="Telegram ID" value={employee.telegramId} />}
+          </InfoCard>
 
-      {/* Сегодняшний день */}
-      <div className="card mb-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Сегодня</h3>
-        {employee.today?.timeRecord ? (
-          <div className="space-y-3">
-            <div>
-              <span className="text-gray-500">Статус:</span>
-              <span className={`ml-2 px-2 py-1 rounded-full text-xs ${
-                employee.today.timeRecord.status === 'work' ? 'bg-green-100 text-green-800' :
-                employee.today.timeRecord.status === 'sick' ? 'bg-red-100 text-red-800' :
-                employee.today.timeRecord.status === 'vacation' ? 'bg-blue-100 text-blue-800' :
-                'bg-yellow-100 text-yellow-800'
-              }`}>
-                {employee.today.timeRecord.status === 'work' ? 'Работает' :
-                 employee.today.timeRecord.status === 'sick' ? 'Болеет' :
-                 employee.today.timeRecord.status === 'vacation' ? 'В отпуске' :
-                 'Опаздывает'}
-              </span>
-            </div>
-            <div>
-              <span className="text-gray-500">Начало работы:</span>
-              <span className="ml-2">
-                {new Date(employee.today.timeRecord.startTime).toLocaleTimeString('ru-RU')}
-              </span>
-            </div>
-            {employee.today.timeRecord.endTime && (
+          <InfoCard title="Статистика за неделю">
+            <InfoRow label="Рабочих дней" value={employee.weekStats?.totalDays || 0} />
+            <InfoRow label="Отработано часов" value={employee.weekStats?.totalHours || '0ч 0мин'} />
+            <InfoRow label="Отчетов за неделю" value={employee.weekStats?.reportsCount || 0} />
+          </InfoCard>
+          
+          <InfoCard title="Сегодня">
+            {employee.today?.timeRecord ? (
               <>
-                <div>
-                  <span className="text-gray-500">Окончание работы:</span>
-                  <span className="ml-2">
-                    {new Date(employee.today.timeRecord.endTime).toLocaleTimeString('ru-RU')}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-gray-500">Отработано:</span>
-                  <span className="ml-2">{employee.today.timeRecord.workDuration}</span>
-                </div>
+                <InfoRow label="Начало работы" value={format(new Date(employee.today.timeRecord.startTime), 'HH:mm:ss')} />
+                {employee.today.timeRecord.endTime && (
+                  <>
+                    <InfoRow label="Окончание работы" value={format(new Date(employee.today.timeRecord.endTime), 'HH:mm:ss')} />
+                    <InfoRow label="Отработано" value={employee.today.timeRecord.workDuration} />
+                  </>
+                )}
               </>
+            ) : (
+              <p className="text-gray-500">Сегодня еще не приступал к работе</p>
             )}
-          </div>
-        ) : (
-          <p className="text-gray-500">Сегодня еще не приступал к работе</p>
-        )}
+          </InfoCard>
+        </div>
       </div>
 
-      {/* Последние отчеты */}
-      <div className="card">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Последние отчеты</h3>
-        {employee.recentReports?.length > 0 ? (
-          <div className="space-y-4">
-            {employee.recentReports.map(report => (
-              <div key={report.id} className="border-b border-gray-100 pb-4">
+      <div className="bg-[rgba(255,255,255,0.6)] rounded-[19px] p-[13px]">
+        <h3 className="text-[20px] font-semibold text-gray-900 mb-[20px]">Последние отчеты</h3>
+        <div className="flex flex-col gap-[3px]">
+          {employee.recentReports?.length > 0 ? (
+            employee.recentReports.map(report => (
+              <div key={report.id} className="bg-[#f8f8f8] rounded-[16px] p-[22px]">
                 <div className="flex justify-between items-start mb-2">
-                  <span className="text-sm text-gray-500">
-                    {new Date(report.date).toLocaleDateString('ru-RU')}
-                  </span>
-                  <span className="text-xs text-gray-400">
-                    {new Date(report.createdAt).toLocaleTimeString('ru-RU')}
-                  </span>
+                  <p className="text-gray-900 whitespace-pre-wrap flex-1">{report.content}</p>
+                  <div className="text-right ml-4">
+                    <span className="text-sm text-gray-500 block">{format(new Date(report.date), 'dd.MM.yyyy')}</span>
+                    <span className="text-xs text-gray-400 block">{format(new Date(report.createdAt), 'HH:mm:ss')}</span>
+                  </div>
                 </div>
-                <p className="text-gray-900 whitespace-pre-wrap">{report.content}</p>
               </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-gray-500">Нет отчетов</p>
-        )}
+            ))
+          ) : (
+            <div className="bg-[#f8f8f8] rounded-[16px] p-[22px] text-center text-[#727272]">
+              <p>Нет отчетов</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

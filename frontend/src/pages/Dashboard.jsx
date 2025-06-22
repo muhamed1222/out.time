@@ -1,6 +1,135 @@
 import React, { useState, useEffect } from 'react';
 import { dashboardService } from '../services/dashboardService';
 import { toast } from 'react-hot-toast';
+import { format } from 'date-fns';
+
+const WorkingTodayIcon = () => (
+    <div className="bg-[#d4ffe3] relative rounded-lg w-[32px] h-[32px] flex items-center justify-center">
+        <svg width="20" height="16" viewBox="0 0 21 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18.1588 1.96745C13.8644 6.62991 6.37997 6.62991 1.9629 1.96745" stroke="url(#grad1)" strokeWidth="3.92629" strokeLinecap="round"/>
+            <g transform="translate(0, 8) scale(1, -1)">
+                <path d="M18.1588 1.96745C13.8644 6.62991 6.37997 6.62991 1.9629 1.96745" stroke="url(#grad1)" strokeWidth="3.92629" strokeLinecap="round"/>
+            </g>
+            <defs>
+                <linearGradient id="grad1" x1="1.9629" y1="3.83154" x2="18.1588" y2="3.83154" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#B3E0A9"/><stop offset="1" stopColor="#B3E0A9" stopOpacity="0"/>
+                </linearGradient>
+            </defs>
+        </svg>
+    </div>
+);
+
+const WorkingTodayCard = ({ working, total }) => (
+  <div className="bg-[#f8f8f8] rounded-[30px] p-[22px] flex flex-col justify-between h-[165px]">
+    <div><WorkingTodayIcon /></div>
+    <div>
+      <p className="text-[14px] text-gray-500 leading-[20px]">Работают сегодня</p>
+      <p className="text-[26px] font-semibold text-black tracking-[-1.04px]">
+        {working}/{total}
+      </p>
+    </div>
+  </div>
+);
+
+const ReportsTodayIcon = () => (
+    <div className="bg-[#e6eeff] relative rounded-lg w-[32px] h-[32px] flex items-center justify-center">
+        <svg width="20" height="16" viewBox="0 0 21 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18.1586 1.96745C13.8642 6.62991 6.37972 6.62991 1.96265 1.96745" stroke="url(#grad2)" strokeWidth="3.92629" strokeLinecap="round"/>
+            <g transform="translate(0, 8) scale(1, -1)">
+                <path d="M18.1586 1.96745C13.8642 6.62991 6.37972 6.62991 1.96265 1.96745" stroke="url(#grad2)" strokeWidth="3.92629" strokeLinecap="round"/>
+            </g>
+            <defs>
+                <linearGradient id="grad2" x1="1.96265" y1="3.83154" x2="18.1586" y2="3.83154" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#5D8FF4" stopOpacity="0.55"/><stop offset="1" stopColor="#5D8FF4" stopOpacity="0"/>
+                </linearGradient>
+            </defs>
+        </svg>
+    </div>
+);
+
+const ReportsTodayCard = ({ count }) => (
+  <div className="bg-[#f8f8f8] rounded-[30px] p-[22px] flex flex-col justify-between h-[165px]">
+    <div><ReportsTodayIcon /></div>
+    <div>
+      <p className="text-[14px] text-gray-500 leading-[20px]">Отчеты сегодня</p>
+      <p className="text-[26px] font-semibold text-black tracking-[-1.04px]">
+        {count}
+      </p>
+    </div>
+  </div>
+);
+
+const AverageDurationIcon = () => (
+    <div className="bg-[#d4f3fb] relative rounded-lg w-[32px] h-[32px] flex items-center justify-center">
+        <svg width="20" height="16" viewBox="0 0 21 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18.1586 1.96745C13.8642 6.62991 6.37972 6.62991 1.96265 1.96745" stroke="url(#grad3)" strokeWidth="3.92629" strokeLinecap="round"/>
+            <g transform="translate(0, 8) scale(1, -1)">
+                <path d="M18.1586 1.96745C13.8642 6.62991 6.37972 6.62991 1.96265 1.96745" stroke="url(#grad3)" strokeWidth="3.92629" strokeLinecap="round"/>
+            </g>
+            <defs>
+                <linearGradient id="grad3" x1="1.96265" y1="3.83154" x2="18.1586" y2="3.83154" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#10BBED" stopOpacity="0.55"/><stop offset="1" stopColor="#10BBED" stopOpacity="0"/>
+                </linearGradient>
+            </defs>
+        </svg>
+    </div>
+);
+
+const AverageDurationCard = ({ duration }) => (
+    <div className="bg-[#f8f8f8] rounded-[30px] p-[22px] flex flex-col justify-between h-[165px]">
+      <div><AverageDurationIcon /></div>
+      <div>
+        <p className="text-[14px] text-gray-500 leading-[20px]">Средняя</p>
+        <p className="text-[14px] text-gray-500 leading-[20px]">продолжительность</p>
+        <p className="text-[26px] font-semibold text-black tracking-[-1.04px]">
+          {duration}ч
+        </p>
+      </div>
+    </div>
+);
+
+const AbsentIcon = () => (
+    <div className="bg-[#ffe9e6] relative rounded-lg w-[32px] h-[32px] flex items-center justify-center">
+        <svg width="20" height="16" viewBox="0 0 21 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18.1586 1.96745C13.8642 6.62991 6.37972 6.62991 1.96265 1.96745" stroke="url(#grad4)" strokeWidth="3.92629" strokeLinecap="round"/>
+            <g transform="translate(0, 8) scale(1, -1)">
+                <path d="M18.1586 1.96745C13.8642 6.62991 6.37972 6.62991 1.96265 1.96745" stroke="url(#grad4)" strokeWidth="3.92629" strokeLinecap="round"/>
+            </g>
+            <defs>
+                <linearGradient id="grad4" x1="1.96265" y1="3.83154" x2="18.1586" y2="3.83154" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#FF6C59" stopOpacity="0.55"/><stop offset="1" stopColor="#FF6C59" stopOpacity="0"/>
+                </linearGradient>
+            </defs>
+        </svg>
+    </div>
+);
+
+const AbsentCard = ({ count }) => (
+    <div className="bg-[#f8f8f8] rounded-[30px] p-[22px] flex flex-col justify-between h-[165px]">
+      <div><AbsentIcon /></div>
+      <div>
+        <p className="text-[14px] text-gray-500 leading-[20px]">Отсутствуют</p>
+        <p className="text-[26px] font-semibold text-black tracking-[-1.04px]">
+          {count}
+        </p>
+      </div>
+    </div>
+);
+
+const RecentReportItem = ({ report }) => (
+    <div className="bg-[#f8f8f8] rounded-[30px] p-[22px]">
+        <div className="flex justify-between items-start">
+            <div>
+                <p className="text-[16px] font-semibold text-black tracking-[-0.32px]">{report.employeeName}</p>
+                <p className="text-[14px] text-gray-500">{report.content}</p>
+            </div>
+            <div className="text-right">
+                <p className="text-[14px] text-gray-500">{format(new Date(report.date), 'dd.MM.yyyy')}</p>
+                <p className="text-[12px] text-gray-500">{format(new Date(report.createdAt), 'HH:mm:ss')}</p>
+            </div>
+        </div>
+    </div>
+);
 
 const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState({
@@ -35,116 +164,45 @@ const Dashboard = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Дашборд</h1>
-        <p className="text-gray-600">Общая статистика по компании</p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="card">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                </svg>
-              </div>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Работают сегодня</p>
-              <p className="text-2xl font-semibold text-gray-900">
-                {dashboardData.todayStats.workingToday}/{dashboardData.todayStats.totalEmployees}
-              </p>
-            </div>
-          </div>
+    <>
+      <div className="bg-[rgba(255,255,255,0.6)] rounded-[19px] p-[13px] mb-[23px]">
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold text-gray-900 leading-[32px]">Дашборд</h1>
+          <p className="text-gray-600">Общая статистика по компании</p>
         </div>
 
-        <div className="card">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-              </div>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Отчеты сегодня</p>
-              <p className="text-2xl font-semibold text-gray-900">{dashboardData.todayStats.reportsToday}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="card">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Средняя продолжительность</p>
-              <p className="text-2xl font-semibold text-gray-900">{dashboardData.todayStats.averageWorkHours}ч</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="card">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                </svg>
-              </div>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Отсутствуют</p>
-              <p className="text-2xl font-semibold text-gray-900">
-                {dashboardData.todayStats.sickToday + dashboardData.todayStats.vacationToday}
-              </p>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-[3px]">
+          <WorkingTodayCard 
+              working={dashboardData.todayStats.workingToday} 
+              total={dashboardData.todayStats.totalEmployees} 
+          />
+          <ReportsTodayCard count={dashboardData.todayStats.reportsToday} />
+          <AverageDurationCard duration={dashboardData.todayStats.averageWorkHours} />
+          <AbsentCard count={dashboardData.todayStats.sickToday + dashboardData.todayStats.vacationToday} />
         </div>
       </div>
 
-      <div className="card">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Последние отчеты</h3>
-        <div className="space-y-3">
+      <div className="bg-[rgba(255,255,255,0.6)] rounded-[19px] p-[13px]">
+        <h3 className="text-[20px] font-semibold text-gray-900 mb-[20px]">Последние отчеты</h3>
+        <div className="flex flex-col gap-[3px]">
           {dashboardData.recentReports.length > 0 ? (
             dashboardData.recentReports.map((report) => (
-              <div key={report.id} className="flex items-center justify-between py-2 border-b border-gray-100">
-                <div>
-                  <p className="font-medium text-gray-900">{report.employeeName}</p>
-                  <p className="text-sm text-gray-500">{report.content}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm text-gray-900">
-                    {new Date(report.date).toLocaleDateString('ru-RU')}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(report.createdAt).toLocaleTimeString('ru-RU')}
-                  </p>
-                </div>
-              </div>
+              <RecentReportItem key={report.id} report={report} />
             ))
           ) : (
-            <div className="text-center py-4">
+            <div className="bg-[#f8f8f8] rounded-[30px] p-[22px] text-center">
               <p className="text-gray-500">Нет отчетов за сегодня</p>
             </div>
           )}
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

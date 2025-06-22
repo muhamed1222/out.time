@@ -17,6 +17,7 @@ const Settings = () => {
 
   const loadSettings = async () => {
     try {
+      setLoading(true);
       const data = await settingsService.getSettings();
       setSettings({
         morning_notification_time: data.morning_notification_time || '09:00',
@@ -60,7 +61,7 @@ const Settings = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
       </div>
     );
   }
@@ -71,7 +72,7 @@ const Settings = () => {
         <div className="text-red-500 mb-4">{error}</div>
         <button 
           onClick={loadSettings}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="px-[16px] py-[10px] bg-[#101010] text-white text-[14px] font-semibold rounded-[30px] hover:bg-gray-800 transition-colors"
         >
           Попробовать снова
         </button>
@@ -80,16 +81,17 @@ const Settings = () => {
   }
 
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Настройки</h1>
-        <p className="text-gray-600">Управление настройками компании</p>
+    <div className="bg-[rgba(255,255,255,0.6)] rounded-[19px] p-[13px]">
+      <div className="mb-[20px]">
+        <h1 className="text-[24px] font-semibold text-gray-900 leading-[32px]">Настройки</h1>
+        <p className="text-[14px] text-[#727272]">Управление настройками компании</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="card">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Уведомления</h3>
-          <div className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-[23px]">
+        
+        <div className="bg-[#f8f8f8] rounded-[16px] p-[22px]">
+          <h3 className="text-[18px] font-semibold text-gray-900 mb-4">Уведомления</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Время утреннего уведомления
@@ -97,7 +99,7 @@ const Settings = () => {
               <input 
                 type="time" 
                 name="morning_notification_time"
-                className="input-field max-w-32"
+                className="w-full px-3 py-2 border border-gray-300 rounded-[16px] focus:outline-none focus:ring-2 focus:ring-accent bg-white"
                 value={settings.morning_notification_time}
                 onChange={handleChange}
               />
@@ -109,7 +111,7 @@ const Settings = () => {
               <input 
                 type="time" 
                 name="evening_notification_time"
-                className="input-field max-w-32"
+                className="w-full px-3 py-2 border border-gray-300 rounded-[16px] focus:outline-none focus:ring-2 focus:ring-accent bg-white"
                 value={settings.evening_notification_time}
                 onChange={handleChange}
               />
@@ -117,9 +119,8 @@ const Settings = () => {
           </div>
         </div>
 
-        <div className="card">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Информация о компании</h3>
-          <div className="space-y-4">
+        <div className="bg-[#f8f8f8] rounded-[16px] p-[22px]">
+          <h3 className="text-[18px] font-semibold text-gray-900 mb-4">Информация о компании</h3>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Название компании
@@ -127,19 +128,18 @@ const Settings = () => {
               <input 
                 type="text" 
                 name="name"
-                className="input-field"
-                placeholder="Название компании"
+                className="w-full px-3 py-2 border border-gray-300 rounded-[16px] focus:outline-none focus:ring-2 focus:ring-accent bg-white"
+                placeholder="Название вашей компании"
                 value={settings.name}
                 onChange={handleChange}
               />
             </div>
-          </div>
         </div>
 
         <div className="flex justify-end">
           <button 
             type="submit" 
-            className="btn-primary"
+            className="px-[16px] py-[10px] bg-[#101010] text-white text-[14px] font-semibold rounded-[30px] hover:bg-gray-800 transition-colors disabled:opacity-50"
             disabled={loading}
           >
             {loading ? 'Сохранение...' : 'Сохранить изменения'}

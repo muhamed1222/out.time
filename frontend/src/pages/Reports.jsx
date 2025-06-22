@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { reportsService } from '../services/reportsService';
 import { toast } from 'react-hot-toast';
+import { format } from 'date-fns';
+import { ru } from 'date-fns/locale';
+import DatePicker from '../components/ui/DatePicker';
 
 const Reports = () => {
   const [reports, setReports] = useState([]);
@@ -8,7 +11,6 @@ const Reports = () => {
   const [filters, setFilters] = useState({
     startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     endDate: new Date().toISOString().split('T')[0],
-    employeeId: ''
   });
 
   useEffect(() => {
@@ -50,112 +52,60 @@ const Reports = () => {
   };
 
   return (
-    <div>
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Отчеты</h1>
-          <p className="text-gray-600">Отчеты сотрудников за выбранный период</p>
+    <>
+      <div className="bg-[rgba(255,255,255,0.6)] rounded-[19px] p-[13px] mb-[23px]">
+        <div className="flex items-center justify-between mb-4">
+            <div>
+                <h1 className="text-[24px] font-semibold text-gray-900 leading-[32px]">Отчеты</h1>
+                <p className="text-[14px] text-[#727272]">Отчеты сотрудников за выбранный период</p>
+            </div>
+            <button onClick={handleExport} disabled={isLoading || reports.length === 0}
+                className="px-[16px] py-[10px] bg-[#101010] text-white text-[14px] font-semibold rounded-[30px] hover:bg-gray-800 transition-colors disabled:opacity-50">
+            Экспорт в Excel
+            </button>
         </div>
-        <button 
-          className="btn-secondary"
-          onClick={handleExport}
-          disabled={isLoading || reports.length === 0}
-        >
-          📊 Экспорт в Excel
-        </button>
-      </div>
-
-      <div className="card mb-6">
         <div className="flex gap-4 items-end">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Начальная дата
-            </label>
-            <input
-              type="date"
-              name="startDate"
-              value={filters.startDate}
-              onChange={handleFilterChange}
-              className="input"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Конечная дата
-            </label>
-            <input
-              type="date"
-              name="endDate"
-              value={filters.endDate}
-              onChange={handleFilterChange}
-              className="input"
-            />
-          </div>
+          <DatePicker
+            label="Начальная дата"
+            name="startDate"
+            value={filters.startDate}
+            onChange={handleFilterChange}
+          />
+          <DatePicker
+            label="Конечная дата"
+            name="endDate"
+            value={filters.endDate}
+            onChange={handleFilterChange}
+          />
         </div>
       </div>
 
-      <div className="card">
+      <div className="bg-[rgba(255,255,255,0.6)] rounded-[19px] p-[13px]">
+        <h3 className="text-[20px] font-semibold text-gray-900 mb-[20px]">Все отчеты</h3>
         {isLoading ? (
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-            <p className="mt-2 text-gray-500">Загрузка отчетов...</p>
-          </div>
+          <div className="text-center py-8 text-[#727272]">Загрузка...</div>
         ) : reports.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead>
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Дата
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Сотрудник
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Отчет
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Время отправки
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {reports.map((report) => (
-                  <tr key={report.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {new Date(report.date).toLocaleDateString('ru-RU')}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        {report.employeeName}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900">
-                        {report.content}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(report.createdAt).toLocaleTimeString('ru-RU')}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="flex flex-col gap-[3px]">
+             <div className="grid grid-cols-3 gap-[22px] px-[22px] py-[10px] text-[12px] text-[#727272] font-semibold uppercase">
+                <div>Сотрудник</div>
+                <div>Отчет</div>
+                <div>Дата и время</div>
+            </div>
+            {reports.map((report) => (
+               <div key={report.id} className="bg-[#f8f8f8] rounded-[16px] p-[22px] grid grid-cols-3 gap-[22px] items-center text-[14px] font-medium">
+                <div>{report.employeeName}</div>
+                <div className="whitespace-normal break-words">{report.content}</div>
+                <div>{format(new Date(report.createdAt), 'dd MMM, HH:mm', { locale: ru })}</div>
+              </div>
+            ))}
           </div>
         ) : (
-          <div className="text-center py-8">
-            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-            <h3 className="mt-2 text-sm font-medium text-gray-900">Нет отчетов</h3>
-            <p className="mt-1 text-sm text-gray-500">
-              За выбранный период отчетов не найдено
-            </p>
+          <div className="bg-[#f8f8f8] rounded-[16px] p-[22px] text-center text-[#727272]">
+            <p>За выбранный период отчетов не найдено.</p>
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 };
 
