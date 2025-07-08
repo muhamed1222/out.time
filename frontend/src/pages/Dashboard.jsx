@@ -108,7 +108,7 @@ const AbsentCard = ({ count }) => (
     <div className="bg-[#f8f8f8] rounded-[30px] p-[22px] flex flex-col justify-between h-[165px]">
       <div><AbsentIcon /></div>
       <div>
-        <p className="text-[14px] text-gray-500 leading-[20px]">Отсутствуют</p>
+        <p className="text-[14px] text-gray-500 leading-[20px]">Отсутствуют на рабочем месте</p>
         <p className="text-[26px] font-semibold text-black tracking-[-1.04px]">
           {count}
         </p>
