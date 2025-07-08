@@ -14,8 +14,10 @@ app.use(helmet());
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
-  'http://localhost:5174', 
+  'http://localhost:5174',
   'http://localhost:5175',
+  'https://outtime.outcasts.dev',
+  'http://outtime.outcasts.dev',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
@@ -23,7 +25,7 @@ app.use(cors({
   origin: function (origin, callback) {
     // Разрешаем запросы без origin (например, мобильные приложения)
     if (!origin) return callback(null, true);
-    
+
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
@@ -52,8 +54,8 @@ app.use((req, res, next) => {
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
+  res.json({
+    status: 'OK',
     timestamp: new Date().toISOString(),
     service: 'OutTime Backend'
   });
@@ -72,16 +74,16 @@ app.use('/api/settings', require('./routes/settings'));
 
 // Обработка 404
 app.use('*', (req, res) => {
-  res.status(404).json({ 
+  res.status(404).json({
     error: 'Маршрут не найден',
-    path: req.originalUrl 
+    path: req.originalUrl
   });
 });
 
 // Глобальная обработка ошибок
 app.use((err, req, res, next) => {
   console.error('Ошибка сервера:', err);
-  
+
   // Ошибки валидации
   if (err.name === 'ValidationError') {
     return res.status(400).json({
@@ -89,14 +91,14 @@ app.use((err, req, res, next) => {
       details: err.message
     });
   }
-  
+
   // Ошибки базы данных
   if (err.code === '23505') { // Duplicate key
     return res.status(400).json({
       error: 'Данные уже существуют'
     });
   }
-  
+
   // Общая ошибка сервера
   res.status(500).json({
     error: 'Внутренняя ошибка сервера',
