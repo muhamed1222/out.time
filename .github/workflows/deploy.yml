@@ -10,30 +10,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Чекаут кода из репозитория
+      # Чекаут кода
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # # Установка Node.js
-      # - name: Setup Node.js
-      #   uses: actions/setup-node@v4
-      #   with:
-      #     node-version: '20' # Укажите вашу версию Node.js
+      # Установка Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20" # Укажите вашу версию Node.js
 
-      # Развертка проекта
+      # Установка pnpm
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      # Сборка фронтенда
       - name: Build Frontend
         run: |
-          cd /home/root/outtime
+          cd frontend
           pnpm install
           pnpm build
 
-      # Установка зависимостей для бэкенда
+      # Установка зависимостей бэкенда
       - name: Install Backend Dependencies
         run: |
           cd backend
           npm install
 
-      # Настройка SSH для деплоя
+      # Настройка SSH
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
@@ -48,6 +52,6 @@ jobs:
           rsync -avz --delete -e "ssh -i ~/.ssh/id_rsa" ./backend/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:${{ secrets.SERVER_PATH }}/backend/
           ssh -i ~/.ssh/id_rsa ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
             cd ${{ secrets.SERVER_PATH }}/backend
-            npm ci
+            npm install
             pm2 restart outtime-backend
           EOF
