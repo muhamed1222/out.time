@@ -1,0 +1,52 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Чекаут кода из репозитория
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # # Установка Node.js
+      # - name: Setup Node.js
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: '20' # Укажите вашу версию Node.js
+
+      # Развертка проекта
+      - name: Build Frontend
+        run: |
+          pnpm install
+          pnpm build
+
+      # Установка зависимостей для бэкенда
+      - name: Install Backend Dependencies
+        run: |
+          cd backend
+          npm install
+
+      # Настройка SSH для деплоя
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+
+      # Деплой на сервер
+      - name: Deploy to Server
+        run: |
+          rsync -avz --delete -e "ssh -i ~/.ssh/id_rsa" ./frontend/dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:${{ secrets.SERVER_PATH }}/frontend/dist/
+          rsync -avz --delete -e "ssh -i ~/.ssh/id_rsa" ./backend/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:${{ secrets.SERVER_PATH }}/backend/
+          ssh -i ~/.ssh/id_rsa ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+            cd ${{ secrets.SERVER_PATH }}/backend
+            npm ci
+            pm2 restart outtime-backend
+          EOF
