@@ -35,7 +35,7 @@ jobs:
       - name: Install Backend Dependencies
         run: |
           cd backend
-          npm install
+          pnpm install -y
 
       # Настройка SSH
       - name: Setup SSH
