@@ -23,6 +23,7 @@ jobs:
       # Развертка проекта
       - name: Build Frontend
         run: |
+          cd /home/root/outtime
           pnpm install
           pnpm build
 
