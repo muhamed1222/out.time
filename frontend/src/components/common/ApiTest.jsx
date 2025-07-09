@@ -5,15 +5,29 @@ const ApiTest = () => {
   const [testResult, setTestResult] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
 
+  const getHealthUrl = () => {
+    const currentHost = window.location.hostname
+    
+    // Если мы на продакшн домене, используем продакшн URL
+    if (currentHost === 'outtime.outcasts.dev') {
+      return 'https://outtime.outcasts.dev/health'
+    }
+    
+    // Иначе используем localhost
+    return 'http://localhost:3000/health'
+  }
+
   const testApiConnection = async () => {
     setIsLoading(true)
     setTestResult(null)
     
     try {
+      const healthUrl = getHealthUrl()
       console.log('Тестирование подключения к API:', api.defaults.baseURL)
+      console.log('Health URL:', healthUrl)
       
       // Тест здоровья сервера
-      const healthResponse = await fetch(api.defaults.baseURL.replace('/api', '/health'))
+      const healthResponse = await fetch(healthUrl)
       const healthData = await healthResponse.json()
       
       setTestResult({
@@ -21,6 +35,7 @@ const ApiTest = () => {
         message: 'API работает корректно',
         details: {
           baseURL: api.defaults.baseURL,
+          healthUrl: healthUrl,
           health: healthData,
           timestamp: new Date().toISOString()
         }
@@ -34,6 +49,8 @@ const ApiTest = () => {
         message: 'Не удалось подключиться к API',
         details: {
           baseURL: api.defaults.baseURL,
+          healthUrl: getHealthUrl(),
+          currentHost: window.location.hostname,
           error: error.message,
           code: error.code,
           timestamp: new Date().toISOString()
@@ -49,8 +66,11 @@ const ApiTest = () => {
       <h2 className="text-[20px] font-semibold mb-[16px]">Тест API подключения</h2>
       
       <div className="mb-[16px]">
+        <p className="text-[14px] text-[#727272] mb-[4px]">
+          Текущий домен: {window.location.hostname}
+        </p>
         <p className="text-[14px] text-[#727272] mb-[8px]">
-          Текущий API URL: {api.defaults.baseURL}
+          API URL: {api.defaults.baseURL}
         </p>
         
         <button

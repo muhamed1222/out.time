@@ -1,7 +1,30 @@
 import axios from 'axios'
 
+// Определяем API URL с приоритетом продакшена
+const getApiUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL
+  const currentHost = window.location.hostname
+  
+  console.log('Environment check:', {
+    'import.meta.env.VITE_API_URL': envUrl,
+    'window.location.hostname': currentHost,
+    'window.location.href': window.location.href
+  })
+  
+  // Если мы на продакшн домене, используем продакшн API
+  if (currentHost === 'outtime.outcasts.dev') {
+    return 'https://outtime.outcasts.dev/api'
+  }
+  
+  // Иначе используем переменную окружения или дефолт для локальной разработки
+  return envUrl || 'http://localhost:3000/api'
+}
+
+const apiUrl = getApiUrl()
+console.log('Final API URL:', apiUrl)
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://outtime.outcasts.dev/api',
+  baseURL: apiUrl,
   headers: {
     'Content-Type': 'application/json'
   },
