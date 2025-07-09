@@ -5,6 +5,16 @@ const Report = require('../models/Report');
 
 const router = express.Router();
 
+// Health check endpoint (публичный, без аутентификации)
+router.get('/health', (req, res) => {
+  res.json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    service: 'OutTime API',
+    version: '1.0.0'
+  });
+});
+
 // Публичный тестовый маршрут (без аутентификации)
 router.get('/employees/by-telegram/:telegramId', async (req, res) => {
   try {

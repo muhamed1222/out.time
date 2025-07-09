@@ -10,11 +10,11 @@ const ApiTest = () => {
     
     // Если мы на продакшн домене, используем продакшн URL
     if (currentHost === 'outtime.outcasts.dev') {
-      return 'https://outtime.outcasts.dev/health'
+      return 'https://outtime.outcasts.dev/api/public/health'
     }
     
     // Иначе используем localhost
-    return 'http://localhost:3000/health'
+    return 'http://localhost:3000/api/public/health'
   }
 
   const testApiConnection = async () => {
@@ -28,6 +28,11 @@ const ApiTest = () => {
       
       // Тест здоровья сервера
       const healthResponse = await fetch(healthUrl)
+      
+      if (!healthResponse.ok) {
+        throw new Error(`HTTP ${healthResponse.status}: ${healthResponse.statusText}`)
+      }
+      
       const healthData = await healthResponse.json()
       
       setTestResult({
@@ -37,6 +42,7 @@ const ApiTest = () => {
           baseURL: api.defaults.baseURL,
           healthUrl: healthUrl,
           health: healthData,
+          httpStatus: healthResponse.status,
           timestamp: new Date().toISOString()
         }
       })
