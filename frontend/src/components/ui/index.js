@@ -7,6 +7,10 @@ export { default as Badge, WorkStatusBadge } from './Badge'
 export { default as Input, SearchInput, Textarea } from './Input'
 export { default as LoadingSkeleton } from './LoadingSkeleton'
 
+// Продвинутые компоненты
+export { default as StatsCard, TrendIndicator } from './StatsCard'
+export { default as DataTable, TableHeader, TableRow, Pagination } from './DataTable'
+
 // Экспорт отдельных компонентов из Card
 export {
   CardHeader,
@@ -29,4 +33,5 @@ export {
 // Реэкспорт констант и утилит
 export { buttonVariants, buttonSizes } from './Button'
 export { badgeVariants, badgeSizes, getWorkStatusBadge } from './Badge'
-export { inputVariants, inputSizes } from './Input' 
+export { inputVariants, inputSizes } from './Input'
+export { statsColorSchemes, statsIcons } from './StatsCard' 

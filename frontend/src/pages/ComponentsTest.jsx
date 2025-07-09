@@ -13,7 +13,11 @@ import {
   CardDescription,
   CardContent,
   CardFooter,
-  StatsCardSkeleton
+  StatsCard,
+  TrendIndicator,
+  DataTable,
+  statsColorSchemes,
+  statsIcons
 } from '../components/ui'
 
 const ComponentsTest = () => {
@@ -236,7 +240,7 @@ const ComponentsTest = () => {
             {/* Скелетон статистики */}
             <div>
               <h4 className="text-subheading mb-3">Статистика</h4>
-              <StatsCardSkeleton />
+              <LoadingSkeleton type="stats" />
             </div>
 
             {/* Скелетон списка */}
@@ -275,6 +279,143 @@ const ComponentsTest = () => {
             <div className="hover-glow card-flat text-center p-6">
               <h4 className="text-subheading mb-2">Hover Glow</h4>
               <p className="text-caption">Тень при наведении</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Статистические карточки */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Статистические карточки</CardTitle>
+          <CardDescription>Современные карточки с иконками и трендами</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <StatsCard
+              icon={statsIcons.users}
+              title="Активные пользователи"
+              value="2,345"
+              trend={12}
+              color={statsColorSchemes.primary}
+            />
+            
+            <StatsCard
+              icon={statsIcons.reports}
+              title="Отчеты за месяц"
+              value="486"
+              subtitle="на 15% больше"
+              trend={15}
+              color={statsColorSchemes.success}
+            />
+            
+            <StatsCard
+              icon={statsIcons.clock}
+              title="Среднее время"
+              value="8.5ч"
+              trend={-5}
+              color={statsColorSchemes.warning}
+            />
+            
+            <StatsCard
+              icon={statsIcons.chart}
+              title="Конверсия"
+              value="94.2%"
+              color={statsColorSchemes.cyan}
+              onClick={() => alert('Карточка кликабельна!')}
+            />
+          </div>
+          
+          {/* Демонстрация загрузки */}
+          <div className="mt-6">
+            <h4 className="text-subheading mb-3">Состояние загрузки</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <StatsCard loading />
+              <StatsCard loading />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Таблица данных */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Таблица данных</CardTitle>
+          <CardDescription>Интерактивная таблица с поиском и сортировкой</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <DataTable
+            data={[
+              { id: 1, name: 'Иван Петров', role: 'Разработчик', status: 'work', reports: 24, lastActivity: '2024-12-01' },
+              { id: 2, name: 'Мария Сидорова', role: 'Дизайнер', status: 'sick', reports: 18, lastActivity: '2024-11-30' },
+              { id: 3, name: 'Алексей Кузнецов', role: 'Менеджер', status: 'vacation', reports: 32, lastActivity: '2024-11-29' },
+              { id: 4, name: 'Елена Васильева', role: 'Аналитик', status: 'work', reports: 15, lastActivity: '2024-12-01' },
+              { id: 5, name: 'Дмитрий Козлов', role: 'Тестировщик', status: 'work', reports: 28, lastActivity: '2024-12-01' },
+              { id: 6, name: 'Анна Морозова', role: 'Разработчик', status: 'break', reports: 21, lastActivity: '2024-11-28' },
+              { id: 7, name: 'Павел Николаев', role: 'DevOps', status: 'work', reports: 19, lastActivity: '2024-12-01' },
+              { id: 8, name: 'Ольга Семенова', role: 'HR', status: 'vacation', reports: 12, lastActivity: '2024-11-27' },
+            ]}
+            columns={[
+              {
+                key: 'name',
+                title: 'Имя',
+                render: (value) => <span className="font-medium">{value}</span>
+              },
+              {
+                key: 'role',
+                title: 'Должность',
+                className: 'text-gray-600'
+              },
+              {
+                key: 'status',
+                title: 'Статус',
+                render: (value) => <WorkStatusBadge status={value} />,
+                sortable: false
+              },
+              {
+                key: 'reports',
+                title: 'Отчеты',
+                className: 'text-right font-mono'
+              },
+              {
+                key: 'lastActivity',
+                title: 'Последняя активность',
+                render: (value) => new Date(value).toLocaleDateString('ru-RU'),
+                className: 'text-gray-600'
+              }
+            ]}
+            itemsPerPage={5}
+            onRowClick={(row) => alert(`Выбран сотрудник: ${row.name}`)}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Компоненты тренда */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Индикаторы трендов</CardTitle>
+          <CardDescription>Компоненты для отображения изменений</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-section">
+            <div>
+              <h4 className="text-subheading mb-3">Положительные тренды</h4>
+              <div className="flex flex-wrap gap-4">
+                <TrendIndicator value={5} />
+                <TrendIndicator value={12} />
+                <TrendIndicator value={25} />
+                <TrendIndicator value={100} />
+              </div>
+            </div>
+            
+            <div>
+              <h4 className="text-subheading mb-3">Отрицательные тренды</h4>
+              <div className="flex flex-wrap gap-4">
+                <TrendIndicator value={-3} />
+                <TrendIndicator value={-8} />
+                <TrendIndicator value={-15} />
+                <TrendIndicator value={-50} />
+              </div>
             </div>
           </div>
         </CardContent>
