@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from 'tailwindcss'
 import autoprefixer from 'autoprefixer'
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [react()],
   css: {
     postcss: {
@@ -16,16 +16,19 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:3000',
-        changeOrigin: true,
-        secure: false,
+    // Прокси только для локальной разработки
+    ...(mode === 'development' && {
+      proxy: {
+        '/api': {
+          target: 'http://localhost:3000',
+          changeOrigin: true,
+          secure: false,
+        },
       },
-    },
+    }),
   },
   build: {
     outDir: 'dist',
     sourcemap: true,
   },
-}) 
+})) 
