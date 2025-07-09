@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { dashboardService } from '../services/dashboardService';
 import { toast } from 'react-hot-toast';
 import { format } from 'date-fns';
-import ApiTest from '../components/common/ApiTest';
 
 const WorkingTodayIcon = () => (
     <div className="bg-[#d4ffe3] relative rounded-lg w-[32px] h-[32px] flex items-center justify-center">
@@ -172,9 +171,6 @@ const Dashboard = () => {
 
   return (
     <>
-      {/* Компонент для отладки API */}
-      <ApiTest />
-      
       <div className="bg-[rgba(255,255,255,0.6)] rounded-[19px] p-[13px] mb-[23px]">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold text-gray-900 leading-[32px]">Дашборд</h1>

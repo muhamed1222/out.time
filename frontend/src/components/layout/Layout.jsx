@@ -14,7 +14,7 @@ const Layout = () => {
         <Header />
         
         <main className="flex-1 overflow-x-hidden overflow-y-auto">
-          <div className="max-w-7xl mx-auto">
+          <div className="w-full">
             <Outlet />
           </div>
         </main>
