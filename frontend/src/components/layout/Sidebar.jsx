@@ -100,6 +100,16 @@ const Sidebar = () => {
 
       <div className="p-3">
         <NavLink
+          to="/components-test"
+          className={({ isActive }) =>
+            `block mb-2 text-sm hover:text-black transition-colors ${
+              isActive ? 'font-semibold text-black' : 'text-blue-600'
+            }`
+          }
+        >
+          🎨 UI Компоненты
+        </NavLink>
+        <NavLink
           to="/help"
           className={({ isActive }) =>
             `block mb-2 text-sm hover:text-black transition-colors ${

@@ -12,6 +12,7 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Help from './pages/Help'
 import Faq from './pages/Faq'
+import ComponentsTest from './pages/ComponentsTest'
 
 function App() {
   const { isAuthenticated } = useAuth()
@@ -43,6 +44,7 @@ function App() {
             <Route path="settings" element={<Settings />} />
             <Route path="help" element={<Help />} />
             <Route path="faq" element={<Faq />} />
+            <Route path="components-test" element={<ComponentsTest />} />
           </Route>
         ) : (
           <Route path="*" element={<Navigate to="/login" replace />} />
