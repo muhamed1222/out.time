@@ -75,14 +75,17 @@ const StatsCard = ({
   
   if (loading) {
     return (
-      <div className={cn('card', className)} {...rest}>
+      <div className={cn(
+        'bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100',
+        className
+      )} {...rest}>
         <div className="flex items-center justify-between mb-4">
-          <div className="animate-pulse bg-gray-200 h-12 w-12 rounded-lg"></div>
-          <div className="animate-pulse bg-gray-200 h-6 w-16 rounded-full"></div>
+          <div className="animate-pulse bg-gray-200 h-10 sm:h-12 w-10 sm:w-12 rounded-lg"></div>
+          <div className="animate-pulse bg-gray-200 h-5 sm:h-6 w-14 sm:w-16 rounded-full"></div>
         </div>
         <div className="space-y-2">
-          <div className="animate-pulse bg-gray-200 h-4 w-24 rounded"></div>
-          <div className="animate-pulse bg-gray-200 h-8 w-16 rounded"></div>
+          <div className="animate-pulse bg-gray-200 h-3 sm:h-4 w-20 sm:w-24 rounded"></div>
+          <div className="animate-pulse bg-gray-200 h-6 sm:h-8 w-14 sm:w-16 rounded"></div>
         </div>
       </div>
     )
@@ -91,10 +94,11 @@ const StatsCard = ({
   return (
     <div 
       className={cn(
-        'bg-white rounded-xl p-6 shadow-sm hover:shadow-md border border-gray-100 transition-all duration-base',
+        'bg-white rounded-xl p-4 sm:p-6 shadow-sm hover:shadow-md border border-gray-100 transition-all duration-base',
         {
           'transform hover:-translate-y-0.5': !isInteractive,
-          'cursor-pointer hover:border-gray-200 hover:shadow-lg transform hover:-translate-y-1': isInteractive
+          'cursor-pointer hover:border-gray-200 hover:shadow-lg transform hover:-translate-y-1': isInteractive,
+          'active:transform-none': true
         },
         className
       )}
@@ -102,10 +106,10 @@ const StatsCard = ({
       {...rest}
     >
       {/* Верхняя часть - иконка и тренд */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
         {/* Иконка */}
-        <div className={cn('p-3 rounded-lg', color.background)}>
-          <div className={cn('w-6 h-6', color.text)}>
+        <div className={cn('p-2 sm:p-3 rounded-lg', color.background)}>
+          <div className={cn('w-5 h-5 sm:w-6 sm:h-6', color.text)}>
             {icon}
           </div>
         </div>
@@ -118,14 +122,14 @@ const StatsCard = ({
       
       {/* Нижняя часть - данные */}
       <div>
-        <p className="text-sm font-medium text-gray-600 mb-1 leading-tight">
+        <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1 leading-tight">
           {title}
         </p>
-        <p className="text-2xl font-bold text-gray-900 leading-none mb-1">
+        <p className="text-xl sm:text-2xl font-bold text-gray-900 leading-none mb-1">
           {value}
         </p>
         {subtitle && (
-          <p className="text-xs text-gray-500 leading-tight">
+          <p className="text-[10px] sm:text-xs text-gray-500 leading-tight">
             {subtitle}
           </p>
         )}

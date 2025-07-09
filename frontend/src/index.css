@@ -99,6 +99,15 @@
   button, a, input, select, textarea {
     transition: var(--transition-base);
   }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  body {
+    @apply text-gray-900 antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
 }
 
 @layer components {
@@ -218,6 +227,45 @@
   .space-items {
     @apply space-y-3;
   }
+
+  /* Базовые отступы для контента */
+  .space-content {
+    @apply flex flex-col gap-[23px];
+  }
+
+  /* Отступы для форм */
+  .space-form {
+    @apply flex flex-col gap-4;
+  }
+
+  /* Отступы между элементами */
+  .space-items {
+    @apply gap-2;
+  }
+
+  /* Заголовки */
+  .text-heading {
+    @apply text-[20px] sm:text-[24px] font-semibold text-gray-900 leading-tight;
+  }
+
+  /* Подзаголовки */
+  .text-caption {
+    @apply text-[12px] sm:text-[14px] text-gray-500;
+  }
+
+  /* Карточки */
+  .card {
+    @apply bg-white rounded-[19px] p-[13px] shadow-sm;
+  }
+
+  /* Анимации */
+  .fade-in {
+    @apply animate-[fadeIn_0.3s_ease-in-out];
+  }
+
+  .scale-in {
+    @apply animate-[scaleIn_0.3s_ease-in-out];
+  }
 }
 
 /* 🎯 Кастомные анимации */
@@ -249,6 +297,49 @@
   @keyframes slideIn {
     from { opacity: 0; transform: translateX(-20px); }
     to { opacity: 1; transform: translateX(0); }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Мобильные стили */
+@media (max-width: 768px) {
+  .container {
+    @apply px-4;
+  }
+
+  .card {
+    @apply rounded-[16px] p-[10px];
+  }
+
+  /* Улучшение touch target для мобильных */
+  button, 
+  [role="button"],
+  a {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Скрытие скролла при открытом меню */
+  .menu-open {
+    @apply overflow-hidden;
   }
 }
 

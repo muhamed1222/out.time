@@ -212,6 +212,35 @@ const Pagination = ({
 }
 
 /**
+ * Мобильная карточка для отображения данных
+ */
+const MobileCard = ({ item, columns, onRowClick, className }) => {
+  const isClickable = Boolean(onRowClick)
+  
+  return (
+    <div
+      className={cn(
+        'bg-white rounded-lg shadow-sm p-4 mb-3',
+        { 'cursor-pointer hover:shadow-md transition-shadow': isClickable },
+        className
+      )}
+      onClick={() => onRowClick?.(item)}
+    >
+      {columns.map((column) => (
+        <div key={column.key} className="mb-2 last:mb-0">
+          <div className="text-xs font-medium text-gray-500 mb-1">
+            {column.title}
+          </div>
+          <div className="text-sm text-gray-900">
+            {column.render ? column.render(item[column.key], item) : item[column.key]}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+/**
  * Современный компонент таблицы данных
  * 
  * @param {Object} props - Свойства компонента
@@ -240,117 +269,102 @@ const DataTable = ({
   ...rest
 }) => {
   const [searchTerm, setSearchTerm] = useState('')
-  const [sortConfig, setSortConfig] = useState(null)
   const [currentPage, setCurrentPage] = useState(1)
+  const [sortConfig, setSortConfig] = useState(null)
   
-  // Фильтрация по поиску
+  // Фильтрованные и отсортированные данные
   const filteredData = useMemo(() => {
-    if (!searchTerm.trim()) return data
+    let result = [...data]
     
-    return data.filter(item =>
-      columns.some(column => {
-        const value = item[column.key]
-        return value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+    // Поиск
+    if (searchTerm) {
+      result = result.filter(item => 
+        columns.some(column => {
+          const value = item[column.key]
+          return value && value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+        })
+      )
+    }
+    
+    // Сортировка
+    if (sortConfig) {
+      result.sort((a, b) => {
+        const aValue = a[sortConfig.key]
+        const bValue = b[sortConfig.key]
+        
+        if (aValue === bValue) return 0
+        if (aValue === null || aValue === undefined) return 1
+        if (bValue === null || bValue === undefined) return -1
+        
+        const comparison = aValue > bValue ? 1 : -1
+        return sortConfig.direction === 'asc' ? comparison : -comparison
       })
-    )
-  }, [data, searchTerm, columns])
-  
-  // Сортировка
-  const sortedData = useMemo(() => {
-    if (!sortConfig) return filteredData
+    }
     
-    return [...filteredData].sort((a, b) => {
-      const aValue = a[sortConfig.key]
-      const bValue = b[sortConfig.key]
-      
-      if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1
-      if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1
-      return 0
-    })
-  }, [filteredData, sortConfig])
-  
+    return result
+  }, [data, searchTerm, sortConfig, columns])
+
   // Пагинация
-  const paginatedData = useMemo(() => {
-    if (!paginated) return sortedData
-    
-    const startIndex = (currentPage - 1) * itemsPerPage
-    return sortedData.slice(startIndex, startIndex + itemsPerPage)
-  }, [sortedData, currentPage, itemsPerPage, paginated])
-  
-  const totalPages = Math.ceil(sortedData.length / itemsPerPage)
-  
+  const totalItems = filteredData.length
+  const totalPages = Math.ceil(totalItems / itemsPerPage)
+  const currentData = paginated
+    ? filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+    : filteredData
+
   // Обработчики
   const handleSort = (key) => {
-    if (!sortable) return
-    
-    setSortConfig(prevConfig => {
-      if (prevConfig?.key === key) {
-        return prevConfig.direction === 'asc' 
-          ? { key, direction: 'desc' }
-          : null
-      }
-      return { key, direction: 'asc' }
-    })
+    setSortConfig(prevConfig => ({
+      key,
+      direction: prevConfig?.key === key && prevConfig?.direction === 'asc' ? 'desc' : 'asc'
+    }))
   }
-  
+
   const handleSearch = (e) => {
     setSearchTerm(e.target.value)
-    setCurrentPage(1) // Сброс на первую страницу при поиске
+    setCurrentPage(1)
   }
-  
+
   const handlePageChange = (page) => {
     setCurrentPage(page)
   }
-  
-  // Загрузка
+
   if (loading) {
-    return (
-      <div className={cn('bg-white rounded-xl shadow-sm border border-gray-200', className)}>
-        {searchable && (
-          <div className="p-4 border-b border-gray-200">
-            <div className="w-full max-w-sm">
-              <div className="animate-pulse bg-gray-200 h-10 w-full rounded-lg"></div>
-            </div>
-          </div>
-        )}
-        <LoadingSkeleton type="table" rows={5} columns={columns.length} className="p-4" />
-      </div>
-    )
+    return <LoadingSkeleton type="table" rows={5} columns={columns.length} />
   }
-  
+
   return (
-    <div className={cn('bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden', className)} {...rest}>
+    <div className={cn('w-full', className)} {...rest}>
       {/* Поиск */}
       {searchable && (
-        <div className="p-4 border-b border-gray-200 bg-gray-50">
-          <div className="max-w-sm">
-            <SearchInput
-              placeholder="Поиск в таблице..."
-              value={searchTerm}
-              onChange={handleSearch}
-            />
-          </div>
+        <div className="mb-4">
+          <SearchInput
+            value={searchTerm}
+            onChange={handleSearch}
+            placeholder="Поиск..."
+            className="max-w-md"
+          />
         </div>
       )}
-      
-      {/* Таблица */}
-      <div className="overflow-x-auto">
+
+      {/* Десктопная таблица */}
+      <div className="hidden md:block overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr className="group">
+          <thead className="bg-white">
+            <tr>
               {columns.map((column) => (
                 <TableHeader
                   key={column.key}
                   column={column}
                   sortConfig={sortConfig}
                   onSort={handleSort}
+                  className={column.className}
                 />
               ))}
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {paginatedData.length > 0 ? (
-              paginatedData.map((item, index) => (
+          <tbody>
+            {currentData.length > 0 ? (
+              currentData.map((item, index) => (
                 <TableRow
                   key={item.id || index}
                   item={item}
@@ -361,21 +375,42 @@ const DataTable = ({
               ))
             ) : (
               <tr>
-                <td colSpan={columns.length} className="px-4 py-8 text-center text-gray-500">
-                  {searchTerm ? 'По запросу ничего не найдено' : emptyMessage}
+                <td
+                  colSpan={columns.length}
+                  className="px-4 py-8 text-center text-sm text-gray-500"
+                >
+                  {emptyMessage}
                 </td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
-      
+
+      {/* Мобильные карточки */}
+      <div className="md:hidden">
+        {currentData.length > 0 ? (
+          currentData.map((item, index) => (
+            <MobileCard
+              key={item.id || index}
+              item={item}
+              columns={columns}
+              onRowClick={onRowClick}
+            />
+          ))
+        ) : (
+          <div className="text-center py-8 text-sm text-gray-500">
+            {emptyMessage}
+          </div>
+        )}
+      </div>
+
       {/* Пагинация */}
       {paginated && totalPages > 1 && (
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
-          totalItems={sortedData.length}
+          totalItems={totalItems}
           itemsPerPage={itemsPerPage}
           onPageChange={handlePageChange}
         />

@@ -2,6 +2,7 @@ import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import useAuth from './hooks/useAuth'
 import { Toaster } from 'react-hot-toast'
+import { MobileMenuProvider } from './context/MobileMenuContext'
 import Layout from './components/layout/Layout'
 import Dashboard from './pages/Dashboard'
 import Employees from './pages/Employees'
@@ -18,7 +19,7 @@ function App() {
   const { isAuthenticated } = useAuth()
 
   return (
-    <>
+    <MobileMenuProvider>
       <Toaster position="top-right" />
       <Routes>
         <Route 
@@ -50,7 +51,7 @@ function App() {
           <Route path="*" element={<Navigate to="/login" replace />} />
         )}
       </Routes>
-    </>
+    </MobileMenuProvider>
   )
 }
 

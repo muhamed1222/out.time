@@ -5,6 +5,14 @@ export default {
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
+    screens: {
+      'xs': '375px',
+      'sm': '640px',
+      'md': '768px',
+      'lg': '1024px',
+      'xl': '1280px',
+      '2xl': '1536px'
+    },
     extend: {
       colors: {
         // Сохраняем совместимость + новые токены
@@ -138,6 +146,30 @@ export default {
         popover: '60',
         tooltip: '70',
         notification: '80'
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.3s ease-in-out',
+        'scale-in': 'scaleIn 0.3s ease-in-out',
+        'slide-in-right': 'slideInRight 0.3s ease-in-out',
+        'slide-in-left': 'slideInLeft 0.3s ease-in-out'
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' }
+        },
+        scaleIn: {
+          '0%': { transform: 'scale(0.95)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' }
+        },
+        slideInRight: {
+          '0%': { transform: 'translateX(100%)' },
+          '100%': { transform: 'translateX(0)' }
+        },
+        slideInLeft: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(0)' }
+        }
       }
     },
   },
