@@ -3,11 +3,16 @@
 // Базовые компоненты
 export { default as Button } from './Button';
 export { default as Card } from './Card';
-export { default as Badge } from './Badge';
-export { default as Input } from './Input';
+export { 
+  default as Badge,
+  WorkStatusBadge 
+} from './Badge';
+export { 
+  default as Input,
+  SearchInput,
+  Textarea 
+} from './Input';
 export { default as LoadingSkeleton } from './LoadingSkeleton';
-export { default as StatsCard } from './StatsCard';
-export { default as DataTable } from './DataTable';
 export { default as DatePicker } from './DatePicker';
 export { default as Notifications } from './Notifications';
 export { default as AccordionItem } from './AccordionItem';
@@ -17,9 +22,20 @@ export { default as Breadcrumbs } from './Breadcrumbs';
 export { default as ThemeToggle } from './ThemeToggle';
 export { default as EmptyState } from './EmptyState';
 
-// Продвинутые компоненты
-export { default as StatsCard, TrendIndicator } from './StatsCard'
-export { default as DataTable, TableHeader, TableRow, Pagination } from './DataTable'
+// Продвинутые компоненты с дополнительными экспортами
+export { 
+  default as StatsCard,
+  TrendIndicator,
+  statsColorSchemes,
+  statsIcons 
+} from './StatsCard';
+
+export { 
+  default as DataTable,
+  TableHeader,
+  TableRow,
+  Pagination 
+} from './DataTable';
 
 // Экспорт отдельных компонентов из Card
 export {
@@ -28,7 +44,7 @@ export {
   CardDescription,
   CardContent,
   CardFooter
-} from './Card'
+} from './Card';
 
 // Экспорт отдельных компонентов из LoadingSkeleton
 export {
@@ -38,10 +54,9 @@ export {
   TableSkeleton,
   StatsCardSkeleton,
   ListSkeleton
-} from './LoadingSkeleton'
+} from './LoadingSkeleton';
 
 // Реэкспорт констант и утилит
-export { buttonVariants, buttonSizes } from './Button'
-export { badgeVariants, badgeSizes, getWorkStatusBadge } from './Badge'
-export { inputVariants, inputSizes } from './Input'
-export { statsColorSchemes, statsIcons } from './StatsCard' 
+export { buttonVariants, buttonSizes } from './Button';
+export { badgeVariants, badgeSizes, getWorkStatusBadge } from './Badge';
+export { inputVariants, inputSizes } from './Input'; 
