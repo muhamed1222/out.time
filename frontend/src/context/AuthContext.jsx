@@ -1,5 +1,6 @@
-import React, { createContext, useState, useEffect } from 'react'
+import React, { createContext, useState, useEffect, useCallback } from 'react'
 import api from '../services/api'
+import { useNavigate } from 'react-router-dom'
 
 export const AuthContext = createContext(null)
 
@@ -7,34 +8,48 @@ export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
 
-  useEffect(() => {
+  const initializeAuth = useCallback(() => {
     const token = localStorage.getItem('token')
-    const storedUser = localStorage.getItem('user');
+    const storedUser = localStorage.getItem('user')
 
     if (token && storedUser) {
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`
-      setUser(JSON.parse(storedUser));
-      setIsAuthenticated(true);
-      // We can still verify with the server in the background if needed
-      // checkAuth(); 
+      try {
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+        setUser(JSON.parse(storedUser))
+        setIsAuthenticated(true)
+      } catch (error) {
+        console.error('Error initializing auth:', error)
+        handleLogout()
+      }
     }
     setLoading(false)
   }, [])
 
+  useEffect(() => {
+    initializeAuth()
+  }, [initializeAuth])
+
+  const handleLogout = useCallback(() => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    delete api.defaults.headers.common['Authorization']
+    setUser(null)
+    setIsAuthenticated(false)
+    navigate('/login', { replace: true })
+  }, [navigate])
+
   const checkAuth = async () => {
-    // This function can be used to verify the token with the server,
-    // but the initial state is now set synchronously from localStorage.
     try {
       const response = await api.get('/auth/me')
-      const fetchedUser = response.data.user;
+      const fetchedUser = response.data.user
       setUser(fetchedUser)
-      localStorage.setItem('user', JSON.stringify(fetchedUser));
+      localStorage.setItem('user', JSON.stringify(fetchedUser))
       setIsAuthenticated(true)
     } catch (error) {
-      logout();
-    } finally {
-      setLoading(false)
+      console.error('Auth check failed:', error)
+      handleLogout()
     }
   }
 
@@ -44,25 +59,18 @@ export function AuthProvider({ children }) {
       const { accessToken, user } = response.data
       
       localStorage.setItem('token', accessToken)
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('user', JSON.stringify(user))
       api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
       
       setUser(user)
       setIsAuthenticated(true)
+      navigate('/dashboard', { replace: true })
       
       return response.data
     } catch (error) {
-      console.error('Login failed:', error.response || error)
+      console.error('Login failed:', error)
       throw error
     }
-  }
-
-  const logout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user');
-    delete api.defaults.headers.common['Authorization']
-    setUser(null)
-    setIsAuthenticated(false)
   }
 
   const register = async (companyName, email, password) => {
@@ -75,46 +83,51 @@ export function AuthProvider({ children }) {
       const { accessToken, user } = response.data
       
       localStorage.setItem('token', accessToken)
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('user', JSON.stringify(user))
       api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
       
       setUser(user)
       setIsAuthenticated(true)
+      navigate('/dashboard', { replace: true })
       
       return response.data
     } catch (error) {
-      console.error('Registration failed:', error.response || error)
+      console.error('Registration failed:', error)
       throw error
     }
   }
 
-  const updateUser = (updatedUserData) => {
+  const updateUser = useCallback((updatedUserData) => {
     setUser(prevUser => {
-      const newUser = { ...prevUser, ...updatedUserData };
-      localStorage.setItem('user', JSON.stringify(newUser));
-      return newUser;
-    });
-  };
+      const newUser = { ...prevUser, ...updatedUserData }
+      localStorage.setItem('user', JSON.stringify(newUser))
+      return newUser
+    })
+  }, [])
 
-  const updateUserCompany = (companyName) => {
+  const updateUserCompany = useCallback((companyName) => {
     if (user) {
-        const updatedUser = { ...user, company: { ...user.company, name: companyName } };
-        setUser(updatedUser);
-        localStorage.setItem('user', JSON.stringify(updatedUser));
+      const updatedUser = { 
+        ...user, 
+        company: { ...user.company, name: companyName } 
+      }
+      setUser(updatedUser)
+      localStorage.setItem('user', JSON.stringify(updatedUser))
     }
-  };
+  }, [user])
 
   const value = {
     isAuthenticated,
     user,
     loading,
     login,
-    logout,
+    logout: handleLogout,
     register,
-    updateUserCompany
+    updateUser,
+    updateUserCompany,
+    checkAuth
   }
 
-  // The loading screen is now simpler as we don't need to wait for checkAuth
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">

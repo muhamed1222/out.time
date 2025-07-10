@@ -1,5 +1,5 @@
 import React from 'react'
-import { Routes, Route, Navigate, BrowserRouter } from 'react-router-dom'
+import { Routes, Route, Navigate, BrowserRouter, Outlet } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { MobileMenuProvider } from './context/MobileMenuContext'
 import { AuthProvider } from './context/AuthContext';
@@ -18,21 +18,21 @@ import Faq from './pages/Faq'
 import ComponentsTest from './pages/ComponentsTest'
 
 // Защищенный маршрут
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = () => {
   const token = localStorage.getItem('token')
   if (!token) {
     return <Navigate to="/login" replace />
   }
-  return children
+  return <Outlet />
 }
 
 // Публичный маршрут
-const PublicRoute = ({ children }) => {
+const PublicRoute = () => {
   const token = localStorage.getItem('token')
   if (token) {
     return <Navigate to="/dashboard" replace />
   }
-  return children
+  return <Outlet />
 }
 
 function App() {
@@ -44,46 +44,30 @@ function App() {
             <ToastProvider>
               <Routes>
                 {/* Публичные маршруты */}
-                <Route 
-                  path="/login" 
-                  element={
-                    <PublicRoute>
-                      <Login />
-                    </PublicRoute>
-                  } 
-                />
-                <Route 
-                  path="/register" 
-                  element={
-                    <PublicRoute>
-                      <Register />
-                    </PublicRoute>
-                  } 
-                />
-                
+                <Route element={<PublicRoute />}>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                </Route>
+
                 {/* Защищенные маршруты */}
-                <Route
-                  path="/"
-                  element={
-                    <ProtectedRoute>
-                      <Layout />
-                    </ProtectedRoute>
-                  }
-                >
-                  <Route index element={<Navigate to="/dashboard" replace />} />
-                  <Route path="dashboard" element={<Dashboard />} />
-                  <Route path="employees" element={<Employees />} />
-                  <Route path="employees/:id" element={<EmployeeDetail />} />
-                  <Route path="reports" element={<Reports />} />
-                  <Route path="settings" element={<Settings />} />
-                  <Route path="help" element={<Help />} />
-                  <Route path="faq" element={<Faq />} />
-                  <Route path="components-test" element={<ComponentsTest />} />
+                <Route element={<ProtectedRoute />}>
+                  <Route element={<Layout />}>
+                    <Route index element={<Navigate to="/dashboard" replace />} />
+                    <Route path="dashboard" element={<Dashboard />} />
+                    <Route path="employees" element={<Employees />} />
+                    <Route path="employees/:id" element={<EmployeeDetail />} />
+                    <Route path="reports" element={<Reports />} />
+                    <Route path="settings" element={<Settings />} />
+                    <Route path="help" element={<Help />} />
+                    <Route path="faq" element={<Faq />} />
+                    <Route path="components-test" element={<ComponentsTest />} />
+                  </Route>
                 </Route>
 
                 {/* Редирект для неизвестных маршрутов */}
                 <Route path="*" element={<Navigate to="/login" replace />} />
               </Routes>
+              <Toaster position="top-right" />
             </ToastProvider>
           </MobileMenuProvider>
         </AuthProvider>
