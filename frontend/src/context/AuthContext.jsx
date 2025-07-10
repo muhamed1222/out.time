@@ -4,6 +4,12 @@ import { useNavigate } from 'react-router-dom'
 
 export const AuthContext = createContext(null)
 
+const LoadingSpinner = () => (
+  <div className="min-h-screen flex items-center justify-center">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
+  </div>
+)
+
 export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [user, setUser] = useState(null)
@@ -12,24 +18,28 @@ export function AuthProvider({ children }) {
   const navigate = useNavigate()
 
   const initializeAuth = useCallback(async () => {
-    const token = localStorage.getItem('token')
-    const storedUser = localStorage.getItem('user')
+    try {
+      const token = localStorage.getItem('token')
+      const storedUser = localStorage.getItem('user')
 
-    if (token && storedUser) {
-      try {
-        api.defaults.headers.common['Authorization'] = `Bearer ${token}`
-        const parsedUser = JSON.parse(storedUser)
-        setUser(parsedUser)
-        setIsAuthenticated(true)
-        
-        // Проверяем валидность токена
-        await checkAuth()
-      } catch (error) {
-        console.error('Error initializing auth:', error)
-        handleLogout()
+      if (!token || !storedUser) {
+        setLoading(false)
+        return
       }
+
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+      const parsedUser = JSON.parse(storedUser)
+      setUser(parsedUser)
+      setIsAuthenticated(true)
+      
+      // Проверяем валидность токена
+      await checkAuth()
+    } catch (error) {
+      console.error('Error initializing auth:', error)
+      handleLogout()
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }, [])
 
   useEffect(() => {
@@ -144,7 +154,7 @@ export function AuthProvider({ children }) {
   }
 
   if (loading) {
-    return <div>Загрузка...</div>
+    return <LoadingSpinner />
   }
 
   return (

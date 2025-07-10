@@ -1,5 +1,5 @@
 import React from 'react'
-import { Routes, Route, Navigate, BrowserRouter, Outlet } from 'react-router-dom'
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { MobileMenuProvider } from './context/MobileMenuContext'
 import { AuthProvider } from './context/AuthContext';
@@ -37,44 +37,40 @@ const PublicRoute = () => {
 
 function App() {
   return (
-    <BrowserRouter>
-      <ThemeProvider>
-        <AuthProvider>
-          <MobileMenuProvider>
-            <ToastProvider>
-              <Toaster position="top-right" />
-              <Routes>
-                {/* Корневой маршрут */}
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+    <ThemeProvider>
+      <MobileMenuProvider>
+        <ToastProvider>
+          <Toaster position="top-right" />
+          <Routes>
+            {/* Корневой маршрут */}
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-                {/* Публичные маршруты */}
-                <Route element={<PublicRoute />}>
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
-                </Route>
+            {/* Публичные маршруты */}
+            <Route element={<PublicRoute />}>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+            </Route>
 
-                {/* Защищенные маршруты */}
-                <Route element={<ProtectedRoute />}>
-                  <Route element={<Layout />}>
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/employees" element={<Employees />} />
-                    <Route path="/employees/:id" element={<EmployeeDetail />} />
-                    <Route path="/reports" element={<Reports />} />
-                    <Route path="/settings" element={<Settings />} />
-                    <Route path="/help" element={<Help />} />
-                    <Route path="/faq" element={<Faq />} />
-                    <Route path="/components-test" element={<ComponentsTest />} />
-                  </Route>
-                </Route>
+            {/* Защищенные маршруты */}
+            <Route element={<ProtectedRoute />}>
+              <Route element={<Layout />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/employees" element={<Employees />} />
+                <Route path="/employees/:id" element={<EmployeeDetail />} />
+                <Route path="/reports" element={<Reports />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/help" element={<Help />} />
+                <Route path="/faq" element={<Faq />} />
+                <Route path="/components-test" element={<ComponentsTest />} />
+              </Route>
+            </Route>
 
-                {/* Маршрут для несуществующих страниц */}
-                <Route path="*" element={<Navigate to="/dashboard" replace />} />
-              </Routes>
-            </ToastProvider>
-          </MobileMenuProvider>
-        </AuthProvider>
-      </ThemeProvider>
-    </BrowserRouter>
+            {/* Маршрут для несуществующих страниц */}
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </ToastProvider>
+      </MobileMenuProvider>
+    </ThemeProvider>
   )
 }
 
