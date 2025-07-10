@@ -74,19 +74,18 @@
 }
 
 @layer base {
-  /* Сброс и базовые стили */
-  html {
-    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  :root {
+    --background: 255 255 255;
+    --foreground: 0 0 0;
   }
-  
+
+  .dark {
+    --background: 26 26 26;
+    --foreground: 255 255 255;
+  }
+
   body {
-    background-color: var(--color-gray-50);
-    color: var(--color-gray-900);
-    font-family: 'Inter', sans-serif;
-    min-height: 100vh;
+    @apply bg-[rgb(var(--background))] text-[rgb(var(--foreground))];
   }
 
   /* Улучшенные фокус-состояния */

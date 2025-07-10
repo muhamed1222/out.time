@@ -4,6 +4,7 @@ export default {
     "./index.html",
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     screens: {
       'xs': '375px',
@@ -126,7 +127,12 @@ export default {
         '2xl': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
         primary: '0 10px 15px -3px rgba(59, 130, 246, 0.1), 0 4px 6px -2px rgba(59, 130, 246, 0.05)',
         success: '0 10px 15px -3px rgba(16, 185, 129, 0.1), 0 4px 6px -2px rgba(16, 185, 129, 0.05)',
-        danger: '0 10px 15px -3px rgba(239, 68, 68, 0.1), 0 4px 6px -2px rgba(239, 68, 68, 0.05)'
+        danger: '0 10px 15px -3px rgba(239, 68, 68, 0.1), 0 4px 6px -2px rgba(239, 68, 68, 0.05)',
+        'card': '0 2px 8px 0 rgba(0, 0, 0, 0.08)',
+        'card-hover': '0 8px 24px 0 rgba(0, 0, 0, 0.12)',
+        'dropdown': '0 4px 16px 0 rgba(0, 0, 0, 0.1)',
+        'button': '0 2px 4px 0 rgba(0, 0, 0, 0.05)',
+        'button-hover': '0 4px 12px 0 rgba(0, 0, 0, 0.1)',
       },
       transitionDuration: {
         fast: '150ms',
@@ -148,10 +154,14 @@ export default {
         notification: '80'
       },
       animation: {
-        'fade-in': 'fadeIn 0.3s ease-in-out',
+        'fade-in': 'fadeIn 0.2s ease-in-out',
         'scale-in': 'scaleIn 0.3s ease-in-out',
         'slide-in-right': 'slideInRight 0.3s ease-in-out',
-        'slide-in-left': 'slideInLeft 0.3s ease-in-out'
+        'slide-in-left': 'slideInLeft 0.3s ease-in-out',
+        'slide-up': 'slideUp 0.2s ease-in-out',
+        'slide-down': 'slideDown 0.2s ease-in-out',
+        'toast-in': 'toastIn 0.3s ease-in-out',
+        'toast-out': 'toastOut 0.3s ease-in-out',
       },
       keyframes: {
         fadeIn: {
@@ -169,8 +179,52 @@ export default {
         slideInLeft: {
           '0%': { transform: 'translateX(-100%)' },
           '100%': { transform: 'translateX(0)' }
+        },
+        slideUp: {
+          '0%': { transform: 'translateY(10px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        slideDown: {
+          '0%': { transform: 'translateY(-10px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        toastIn: {
+          '0%': { transform: 'translateX(100%)', opacity: '0' },
+          '100%': { transform: 'translateX(0)', opacity: '1' },
+        },
+        toastOut: {
+          '0%': { transform: 'translateX(0)', opacity: '1' },
+          '100%': { transform: 'translateX(100%)', opacity: '0' },
+        },
+      },
+      backgroundImage: {
+        'gradient-primary': 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+        'gradient-success': 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+        'gradient-warning': 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+        'gradient-danger': 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+        'gradient-card': 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.6) 100%)',
+        'gradient-sidebar': 'linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%)',
+      },
+      backgroundColor: {
+        dark: {
+          primary: '#1a1a1a',
+          secondary: '#2d2d2d',
+          hover: '#3d3d3d',
         }
-      }
+      },
+      textColor: {
+        dark: {
+          primary: '#ffffff',
+          secondary: '#a0a0a0',
+          muted: '#6b7280',
+        }
+      },
+      borderColor: {
+        dark: {
+          DEFAULT: '#404040',
+          hover: '#4a4a4a',
+        }
+      },
     },
   },
   plugins: [],
