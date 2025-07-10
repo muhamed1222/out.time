@@ -42,7 +42,11 @@ function App() {
         <AuthProvider>
           <MobileMenuProvider>
             <ToastProvider>
+              <Toaster position="top-right" />
               <Routes>
+                {/* Корневой маршрут */}
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
                 {/* Публичные маршруты */}
                 <Route element={<PublicRoute />}>
                   <Route path="/login" element={<Login />} />
@@ -52,22 +56,20 @@ function App() {
                 {/* Защищенные маршруты */}
                 <Route element={<ProtectedRoute />}>
                   <Route element={<Layout />}>
-                    <Route index element={<Navigate to="/dashboard" replace />} />
-                    <Route path="dashboard" element={<Dashboard />} />
-                    <Route path="employees" element={<Employees />} />
-                    <Route path="employees/:id" element={<EmployeeDetail />} />
-                    <Route path="reports" element={<Reports />} />
-                    <Route path="settings" element={<Settings />} />
-                    <Route path="help" element={<Help />} />
-                    <Route path="faq" element={<Faq />} />
-                    <Route path="components-test" element={<ComponentsTest />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/employees" element={<Employees />} />
+                    <Route path="/employees/:id" element={<EmployeeDetail />} />
+                    <Route path="/reports" element={<Reports />} />
+                    <Route path="/settings" element={<Settings />} />
+                    <Route path="/help" element={<Help />} />
+                    <Route path="/faq" element={<Faq />} />
+                    <Route path="/components-test" element={<ComponentsTest />} />
                   </Route>
                 </Route>
 
-                {/* Редирект для неизвестных маршрутов */}
-                <Route path="*" element={<Navigate to="/login" replace />} />
+                {/* Маршрут для несуществующих страниц */}
+                <Route path="*" element={<Navigate to="/dashboard" replace />} />
               </Routes>
-              <Toaster position="top-right" />
             </ToastProvider>
           </MobileMenuProvider>
         </AuthProvider>

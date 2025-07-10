@@ -19,7 +19,10 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json'
   },
-  timeout: 10000 // Таймаут 10 секунд
+  // Добавляем таймаут для запросов
+  timeout: 10000,
+  // Разрешаем отправку куки
+  withCredentials: true
 })
 
 // Добавляем токен к каждому запросу
@@ -46,7 +49,7 @@ api.interceptors.request.use(
   }
 )
 
-// Перехватчик для обработки ошибок
+// Перехватчик для обработки ответов
 api.interceptors.response.use(
   response => {
     console.log('API Response:', {
@@ -57,6 +60,7 @@ api.interceptors.response.use(
     return response
   },
   error => {
+    // Подробное логирование ошибок
     console.error('API Response Error:', {
       message: error.message,
       status: error.response?.status,
@@ -64,17 +68,27 @@ api.interceptors.response.use(
       config: {
         method: error.config?.method,
         url: error.config?.url,
-        baseURL: error.config?.baseURL
+        baseURL: error.config?.baseURL,
+        headers: error.config?.headers
       }
     })
     
+    // Обработка ошибок аутентификации
     if (error.response?.status === 401) {
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
-      window.location.href = '/login'
+      // Проверяем, не является ли текущий URL страницей входа
+      if (!window.location.pathname.includes('/login')) {
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        window.location.href = '/login'
+      }
     }
     
-    // Добавляем обработку 404 ошибки
+    // Обработка ошибок сервера
+    if (error.response?.status === 500) {
+      console.error('Серверная ошибка:', error.response.data)
+    }
+    
+    // Обработка ошибок 404
     if (error.response?.status === 404) {
       console.error('Ресурс не найден:', error.response.data)
     }
@@ -85,6 +99,12 @@ api.interceptors.response.use(
       console.error('1. Работает ли backend сервер')
       console.error('2. Правильность API URL:', api.defaults.baseURL)
       console.error('3. Настройки CORS на сервере')
+      console.error('4. Сетевое подключение')
+    }
+    
+    // Обработка таймаута
+    if (error.code === 'ECONNABORTED') {
+      console.error('Превышено время ожидания запроса')
     }
     
     return Promise.reject(error)

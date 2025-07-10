@@ -8,17 +8,22 @@ export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const navigate = useNavigate()
 
-  const initializeAuth = useCallback(() => {
+  const initializeAuth = useCallback(async () => {
     const token = localStorage.getItem('token')
     const storedUser = localStorage.getItem('user')
 
     if (token && storedUser) {
       try {
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`
-        setUser(JSON.parse(storedUser))
+        const parsedUser = JSON.parse(storedUser)
+        setUser(parsedUser)
         setIsAuthenticated(true)
+        
+        // Проверяем валидность токена
+        await checkAuth()
       } catch (error) {
         console.error('Error initializing auth:', error)
         handleLogout()
@@ -37,6 +42,7 @@ export function AuthProvider({ children }) {
     delete api.defaults.headers.common['Authorization']
     setUser(null)
     setIsAuthenticated(false)
+    setError(null)
     navigate('/login', { replace: true })
   }, [navigate])
 
@@ -47,14 +53,19 @@ export function AuthProvider({ children }) {
       setUser(fetchedUser)
       localStorage.setItem('user', JSON.stringify(fetchedUser))
       setIsAuthenticated(true)
+      setError(null)
     } catch (error) {
       console.error('Auth check failed:', error)
-      handleLogout()
+      if (error.response?.status === 401) {
+        handleLogout()
+      }
+      throw error
     }
   }
 
   const login = async (email, password) => {
     try {
+      setError(null)
       const response = await api.post('/auth/login', { email, password })
       const { accessToken, user } = response.data
       
@@ -69,12 +80,14 @@ export function AuthProvider({ children }) {
       return response.data
     } catch (error) {
       console.error('Login failed:', error)
+      setError(error.response?.data?.error || 'Ошибка входа')
       throw error
     }
   }
 
   const register = async (companyName, email, password) => {
     try {
+      setError(null)
       const response = await api.post('/auth/register', {
         companyName,
         email,
@@ -93,6 +106,7 @@ export function AuthProvider({ children }) {
       return response.data
     } catch (error) {
       console.error('Registration failed:', error)
+      setError(error.response?.data?.error || 'Ошибка регистрации')
       throw error
     }
   }
@@ -120,6 +134,7 @@ export function AuthProvider({ children }) {
     isAuthenticated,
     user,
     loading,
+    error,
     login,
     logout: handleLogout,
     register,
@@ -129,11 +144,7 @@ export function AuthProvider({ children }) {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
-      </div>
-    )
+    return <div>Загрузка...</div>
   }
 
   return (
