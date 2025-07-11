@@ -1,144 +1,178 @@
-import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import useAuth from '../hooks/useAuth'
-import { toast } from 'react-hot-toast'
-import ApiTest from '../components/common/ApiTest'
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import useAuth from '../hooks/useAuth';
+import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '../components/ui';
 
-function Login() {
+const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
-  })
-  const [isLoading, setIsLoading] = useState(false)
-  const [showApiTest, setShowApiTest] = useState(false)
-  const { login } = useAuth()
-  const navigate = useNavigate()
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
-    })
-  }
+    });
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setLoading(true);
+    setError('');
 
     try {
-      await login(formData.email, formData.password)
-      toast.success('Вход выполнен успешно!')
-      navigate('/dashboard')
+      await login(formData.email, formData.password);
+      navigate('/dashboard');
     } catch (error) {
-      console.error('Login error:', error)
-      const errorMessage = error.response?.data?.error || 'Произошла ошибка при входе'
-      toast.error(errorMessage)
+      console.log('Login error:', error);
+      setError(error.response?.data?.error || 'Ошибка входа');
     } finally {
-      setIsLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  const handleTestLogin = () => {
+  const handleMockLogin = () => {
     setFormData({
-      email: 'admin@outcasts.dev',
-      password: 'admin123'
-    })
-  }
+      email: 'test@example.com',
+      password: 'password123'
+    });
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Вход в Out Time
-        </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          Система учета рабочего времени
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-6">
+        {/* Логотип */}
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            Out Time
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            Система учета рабочего времени
+          </p>
+        </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          {showApiTest && <ApiTest />}
-          
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email
-              </label>
-              <div className="mt-1">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
+        {/* Dev Mode подсказка */}
+        {import.meta.env.DEV && (
+          <Card className="border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-800">
+            <CardContent className="pt-4">
+              <div className="flex items-start gap-3">
+                <div className="text-yellow-600 dark:text-yellow-400 text-lg">
+                  🧪
+                </div>
+                <div>
+                  <h4 className="font-semibold text-yellow-800 dark:text-yellow-300 mb-1">
+                    Режим разработки
+                  </h4>
+                  <p className="text-sm text-yellow-700 dark:text-yellow-400 mb-2">
+                    БД может быть недоступна. Используйте тестовые данные:
+                  </p>
+                  <div className="text-xs font-mono bg-yellow-100 dark:bg-yellow-900/30 p-2 rounded mb-2">
+                    Email: test@example.com<br />
+                    Пароль: password123
+                  </div>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={handleMockLogin}
+                    className="text-yellow-700 border-yellow-300 hover:bg-yellow-100 dark:text-yellow-300 dark:border-yellow-600 dark:hover:bg-yellow-900/30"
+                  >
+                    Заполнить тестовые данные
+                  </Button>
+                </div>
               </div>
-            </div>
+            </CardContent>
+          </Card>
+        )}
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Пароль
-              </label>
-              <div className="mt-1">
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            </div>
+        {/* Форма входа */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Вход в систему</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <Input
+                label="Email"
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="your@email.com"
+                required
+              />
 
-            <div>
-              <button
+              <Input
+                label="Пароль"
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Введите пароль"
+                required
+              />
+
+              {error && (
+                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+                  <p className="text-red-700 dark:text-red-400 text-sm">
+                    {error}
+                  </p>
+                  {error.includes('Mock-режим') && (
+                    <p className="text-red-600 dark:text-red-500 text-xs mt-1">
+                      💡 Попробуйте test@example.com / password123
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <Button
                 type="submit"
-                disabled={isLoading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                variant="primary"
+                className="w-full"
+                disabled={loading}
               >
-                {isLoading ? 'Вход...' : 'Войти'}
-              </button>
-            </div>
+                {loading ? 'Вход...' : 'Войти'}
+              </Button>
+            </form>
 
-            <div className="flex flex-col space-y-2">
-              <button
-                type="button"
-                onClick={handleTestLogin}
-                className="text-sm bg-gray-100 text-gray-700 px-3 py-2 rounded hover:bg-gray-200"
-              >
-                Заполнить тестовые данные
-              </button>
-              
-              <button
-                type="button"
-                onClick={() => setShowApiTest(!showApiTest)}
-                className="text-sm text-gray-500 hover:text-gray-700 underline"
-              >
-                {showApiTest ? 'Скрыть тест API' : 'Показать тест API'}
-              </button>
-              
-              <div className="text-center">
-                <span className="text-sm text-gray-600">Нет аккаунта? </span>
+            <div className="mt-6 text-center">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Нет аккаунта?{' '}
                 <Link
                   to="/register"
-                  className="text-sm font-medium text-blue-600 hover:text-blue-500"
+                  className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
                 >
                   Зарегистрироваться
                 </Link>
-              </div>
+              </p>
             </div>
-          </form>
-        </div>
+          </CardContent>
+        </Card>
+
+        {/* Дополнительная информация для разработки */}
+        {import.meta.env.DEV && (
+          <Card className="border-gray-200 bg-gray-50 dark:bg-gray-800/50 dark:border-gray-700">
+            <CardContent className="pt-4">
+              <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-2 text-sm">
+                🔧 Для разработчиков
+              </h4>
+              <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                <p>• Сервер работает без БД в mock-режиме</p>
+                <p>• API доступен на http://localhost:3000</p>
+                <p>• Используйте тестовые данные для входа</p>
+                <p>• Переключитесь на страницу "🎨 UI Компоненты" для диагностики</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Login 
+export default Login; 

@@ -1,65 +1,43 @@
 const express = require('express');
-const AuthController = require('../controllers/authController');
-const { authenticateToken } = require('../middleware/auth');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
+const Company = require('../models/Company');
+const authService = require('../services/authService');
 
 const router = express.Router();
 
-/**
- * @swagger
- * /api/auth/register:
- *   post:
- *     summary: Регистрация новой компании
- *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *               - password
- *               - companyName
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 description: Email администратора
- *               password:
- *                 type: string
- *                 format: password
- *                 minLength: 8
- *                 description: Пароль (минимум 8 символов)
- *               companyName:
- *                 type: string
- *                 description: Название компании
- *     responses:
- *       200:
- *         description: Успешная регистрация
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 user:
- *                   type: object
- *                 accessToken:
- *                   type: string
- *       400:
- *         description: Ошибка валидации или email уже существует
- */
-router.post('/register', 
-  AuthController.validateRegister, 
-  AuthController.register
-);
+// Mock данные для разработки без БД
+const mockUsers = [
+  {
+    id: 1,
+    name: 'Тестовый Пользователь',
+    email: 'test@example.com',
+    password: '$2a$10$example.hash.for.password123', // hash для "password123"
+    position: 'Разработчик',
+    company: {
+      id: 1,
+      name: 'Тестовая Компания',
+      subscription_type: 'premium'
+    }
+  }
+];
+
+// Функция проверки доступности БД
+const isDatabaseAvailable = async () => {
+  try {
+    const { testConnection } = require('../config/database');
+    return await testConnection();
+  } catch (error) {
+    return false;
+  }
+};
 
 /**
  * @swagger
  * /api/auth/login:
  *   post:
- *     summary: Авторизация администратора
+ *     summary: Авторизация пользователя
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -76,7 +54,6 @@ router.post('/register',
  *                 format: email
  *               password:
  *                 type: string
- *                 format: password
  *     responses:
  *       200:
  *         description: Успешная авторизация
@@ -85,41 +62,175 @@ router.post('/register',
  *             schema:
  *               type: object
  *               properties:
- *                 user:
- *                   type: object
- *                 accessToken:
+ *                 token:
  *                   type: string
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
  *       401:
- *         description: Неверные учетные данные
+ *         description: Неверный email или пароль
  */
-router.post('/login', 
-  AuthController.validateLogin, 
-  AuthController.login
-);
+router.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-// Обновление токена (требует авторизации)
-router.post('/refresh', 
-  authenticateToken, 
-  AuthController.refreshToken
-);
+    // Валидация входных данных
+    if (!email || !password) {
+      return res.status(400).json({
+        error: 'Email и пароль обязательны'
+      });
+    }
 
-// Смена пароля (требует авторизации)
-router.post('/change-password', 
-  authenticateToken, 
-  AuthController.changePassword
-);
+    // Проверяем доступность БД
+    const dbAvailable = await isDatabaseAvailable();
+    
+    if (!dbAvailable && process.env.NODE_ENV !== 'production') {
+      console.log('🧪 Mock-режим: БД недоступна, используем тестовые данные');
+      
+      // Mock авторизация для разработки
+      if (email === 'test@example.com' && password === 'password123') {
+        const mockUser = mockUsers[0];
+        const token = jwt.sign(
+          { 
+            userId: mockUser.id, 
+            email: mockUser.email,
+            companyId: mockUser.company.id 
+          },
+          process.env.JWT_SECRET || 'dev-secret',
+          { expiresIn: '7d' }
+        );
 
-// Выход из системы
-router.post('/logout', 
-  authenticateToken, 
-  AuthController.logout
-);
+        return res.json({
+          token,
+          user: {
+            id: mockUser.id,
+            name: mockUser.name,
+            email: mockUser.email,
+            position: mockUser.position,
+            company: mockUser.company
+          }
+        });
+      } else {
+        return res.status(401).json({
+          error: 'Mock-режим: используйте test@example.com / password123'
+        });
+      }
+    }
+
+    // Обычная авторизация через БД
+    const user = await User.findOne({
+      where: { email },
+      include: [Company]
+    });
+
+    if (!user) {
+      return res.status(401).json({
+        error: 'Неверный email или пароль'
+      });
+    }
+
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) {
+      return res.status(401).json({
+        error: 'Неверный email или пароль'
+      });
+    }
+
+    const token = jwt.sign(
+      { 
+        userId: user.id, 
+        email: user.email,
+        companyId: user.companyId 
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        position: user.position,
+        company: user.Company
+      }
+    });
+
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({
+      error: 'Внутренняя ошибка сервера',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+/**
+ * @swagger
+ * /api/auth/register:
+ *   post:
+ *     summary: Регистрация нового пользователя
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - password
+ *               - companyName
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               password:
+ *                 type: string
+ *                 minLength: 6
+ *               companyName:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Пользователь успешно зарегистрирован
+ *       400:
+ *         description: Ошибка валидации или пользователь уже существует
+ */
+router.post('/register', async (req, res) => {
+  try {
+    const dbAvailable = await isDatabaseAvailable();
+    
+    if (!dbAvailable && process.env.NODE_ENV !== 'production') {
+      return res.status(503).json({
+        error: 'Mock-режим: регистрация недоступна без БД',
+        suggestion: 'Используйте test@example.com / password123 для входа'
+      });
+    }
+
+    const result = await authService.register(req.body);
+    res.status(201).json(result);
+  } catch (error) {
+    console.error('Registration error:', error);
+    
+    if (error.message.includes('уже существует')) {
+      return res.status(400).json({ error: error.message });
+    }
+    
+    res.status(500).json({
+      error: 'Внутренняя ошибка сервера',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
 
 /**
  * @swagger
  * /api/auth/me:
  *   get:
- *     summary: Получение информации о текущем пользователе
+ *     summary: Получить информацию о текущем пользователе
  *     tags: [Auth]
  *     security:
  *       - bearerAuth: []
@@ -129,16 +240,57 @@ router.post('/logout',
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 user:
- *                   type: object
+ *               $ref: '#/components/schemas/User'
  *       401:
  *         description: Не авторизован
  */
-router.get('/me', 
-  authenticateToken, 
-  AuthController.me
-);
+router.get('/me', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    
+    if (!token) {
+      return res.status(401).json({ error: 'Токен не предоставлен' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'dev-secret');
+    
+    const dbAvailable = await isDatabaseAvailable();
+    
+    if (!dbAvailable && process.env.NODE_ENV !== 'production') {
+      // Mock режим
+      const mockUser = mockUsers.find(u => u.id === decoded.userId);
+      if (mockUser) {
+        return res.json({
+          id: mockUser.id,
+          name: mockUser.name,
+          email: mockUser.email,
+          position: mockUser.position,
+          company: mockUser.company
+        });
+      }
+    }
+
+    // Обычный режим с БД
+    const user = await User.findByPk(decoded.userId, {
+      include: [Company]
+    });
+
+    if (!user) {
+      return res.status(401).json({ error: 'Пользователь не найден' });
+    }
+
+    res.json({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      position: user.position,
+      company: user.Company
+    });
+
+  } catch (error) {
+    console.error('Auth check error:', error);
+    res.status(401).json({ error: 'Недействительный токен' });
+  }
+});
 
 module.exports = router; 

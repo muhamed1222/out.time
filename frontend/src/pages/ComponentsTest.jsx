@@ -19,6 +19,7 @@ import {
   statsIcons
 } from '../components/ui';
 import api from '../services/api';
+import ApiTest from '../components/ApiTest';
 
 const ComponentsTest = () => {
   const [apiStatus, setApiStatus] = useState(null);
@@ -108,10 +109,13 @@ const ComponentsTest = () => {
         </CardHeader>
       </Card>
 
-      {/* API тестирование */}
+      {/* Детальная диагностика API */}
+      <ApiTest />
+
+      {/* Быстрый тест API */}
       <Card>
         <CardHeader>
-          <CardTitle>🔌 Тест API подключения</CardTitle>
+          <CardTitle>⚡ Быстрый тест API</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -119,9 +123,9 @@ const ComponentsTest = () => {
               <Button 
                 onClick={testApiConnection} 
                 disabled={testing}
-                variant="primary"
+                variant="secondary"
               >
-                {testing ? 'Тестирование...' : 'Тестировать подключение'}
+                {testing ? 'Тестирование...' : 'Быстрый тест'}
               </Button>
               
               {apiStatus && (

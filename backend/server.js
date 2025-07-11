@@ -18,42 +18,62 @@ async function startServer() {
       console.error('❌ Отсутствуют обязательные переменные окружения:');
       missingVars.forEach(varName => console.error(`   - ${varName}`));
       console.error('\n💡 Создайте файл .env с необходимыми переменными');
-      process.exit(1);
+      
+      if (process.env.NODE_ENV === 'production') {
+        process.exit(1);
+      } else {
+        console.log('⚠️ Режим разработки: продолжаем без полной конфигурации');
+      }
     }
 
     // Проверяем подключение к базе данных
     console.log('🔍 Проверка подключения к базе данных...');
     const dbConnected = await testConnection();
     if (!dbConnected) {
-      console.error('❌ Не удалось подключиться к базе данных');
-      process.exit(1);
+      if (process.env.NODE_ENV === 'production') {
+        console.error('❌ Не удалось подключиться к базе данных');
+        process.exit(1);
+      } else {
+        console.log('⚠️ Режим разработки: запускаем без БД (только для тестирования UI)');
+      }
     }
 
     // Запускаем API сервер
     const server = app.listen(PORT, () => {
       console.log(`✅ API сервер запущен на порту ${PORT}`);
       console.log(`🌐 Swagger документация: http://localhost:${PORT}/api-docs`);
+      console.log(`🩺 Health check: http://localhost:${PORT}/api/public/health`);
     });
 
     // Запускаем Telegram бота (пока отключен для тестирования)
-    try {
-      console.log('🤖 Запуск Telegram бота...');
-      await bot.launch();
-      console.log('✅ Telegram бот запущен');
-    } catch (error) {
-      console.log('⚠️ Ошибка запуска бота (продолжаем без бота):', error.message);
-      console.log('💡 Проверьте BOT_TOKEN в .env файле');
+    if (process.env.BOT_TOKEN) {
+      try {
+        console.log('🤖 Запуск Telegram бота...');
+        await bot.launch();
+        console.log('✅ Telegram бот запущен');
+      } catch (error) {
+        console.log('⚠️ Ошибка запуска бота (продолжаем без бота):', error.message);
+        console.log('💡 Проверьте BOT_TOKEN в .env файле');
+      }
+    } else {
+      console.log('⚠️ BOT_TOKEN не найден, пропускаем запуск бота');
     }
 
-    // Инициализируем планировщик уведомлений
-    CronService.init();
+    // Инициализируем планировщик уведомлений (только если есть БД)
+    if (dbConnected) {
+      CronService.init();
+    } else {
+      console.log('⚠️ Пропускаем инициализацию планировщика (нет БД)');
+    }
 
     // Graceful shutdown
     const gracefulShutdown = async (signal) => {
       console.log(`\n📡 Получен сигнал ${signal}, останавливаем сервер...`);
       
-      bot.stop(signal);
-      console.log('✅ Telegram бот остановлен');
+      if (process.env.BOT_TOKEN) {
+        bot.stop(signal);
+        console.log('✅ Telegram бот остановлен');
+      }
       
       await new Promise((resolve) => {
       server.close(() => {
@@ -70,18 +90,19 @@ async function startServer() {
     process.once('SIGINT', gracefulShutdown);
     process.once('SIGTERM', gracefulShutdown);
 
-    console.log('\n🎉 Система Out Time успешно запущена!');
+    console.log('\n🎉 Система Out Time запущена!');
     console.log('📊 Компоненты:');
     console.log('   ✅ API сервер (Express.js)');
-    console.log('   ✅ Telegram бот');
-    console.log('   ✅ Планировщик уведомлений');
-    console.log('   ✅ База данных PostgreSQL');
+    console.log(`   ${process.env.BOT_TOKEN ? '✅' : '⚠️'} Telegram бот`);
+    console.log(`   ${dbConnected ? '✅' : '⚠️'} База данных PostgreSQL`);
+    console.log(`   ${dbConnected ? '✅' : '⚠️'} Планировщик уведомлений`);
     
     if (process.env.NODE_ENV === 'development') {
       console.log('\n🧪 Режим разработки активен');
       console.log('💡 Для тестирования используйте:');
       console.log('   - API: http://localhost:3000/api');
-      console.log('   - Healthcheck: http://localhost:3000/health');
+      console.log('   - Health check: http://localhost:3000/api/public/health');
+      console.log('   - Frontend: http://localhost:5173');
     }
 
   } catch (error) {
