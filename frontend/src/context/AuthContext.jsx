@@ -19,7 +19,7 @@ export function AuthProvider({ children }) {
 
   const initializeAuth = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token')
+    const token = localStorage.getItem('token')
       const storedUser = localStorage.getItem('user')
 
       if (!token || !storedUser) {

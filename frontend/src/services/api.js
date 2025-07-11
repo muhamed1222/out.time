@@ -77,10 +77,10 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       // Проверяем, не является ли текущий URL страницей входа
       if (!window.location.pathname.includes('/login')) {
-        localStorage.removeItem('token')
+      localStorage.removeItem('token')
         localStorage.removeItem('user')
-        window.location.href = '/login'
-      }
+      window.location.href = '/login'
+    }
     }
     
     // Обработка ошибок сервера

@@ -2,6 +2,7 @@ require('dotenv').config();
 const app = require('./src/app');
 const { bot } = require('./src/bot');
 const CronService = require('./src/services/cronService');
+const { testConnection } = require('./src/config/database');
 
 const PORT = process.env.PORT || 3000;
 
@@ -17,6 +18,14 @@ async function startServer() {
       console.error('❌ Отсутствуют обязательные переменные окружения:');
       missingVars.forEach(varName => console.error(`   - ${varName}`));
       console.error('\n💡 Создайте файл .env с необходимыми переменными');
+      process.exit(1);
+    }
+
+    // Проверяем подключение к базе данных
+    console.log('🔍 Проверка подключения к базе данных...');
+    const dbConnected = await testConnection();
+    if (!dbConnected) {
+      console.error('❌ Не удалось подключиться к базе данных');
       process.exit(1);
     }
 
@@ -40,17 +49,21 @@ async function startServer() {
     CronService.init();
 
     // Graceful shutdown
-    const gracefulShutdown = (signal) => {
+    const gracefulShutdown = async (signal) => {
       console.log(`\n📡 Получен сигнал ${signal}, останавливаем сервер...`);
       
       bot.stop(signal);
       console.log('✅ Telegram бот остановлен');
       
+      await new Promise((resolve) => {
       server.close(() => {
         console.log('✅ API сервер остановлен');
-        console.log('👋 Сервер успешно завершен');
-        process.exit(0);
+          resolve();
+        });
       });
+
+      console.log('👋 Сервер успешно завершен');
+      process.exit(0);
     };
 
     // Обработчики сигналов завершения

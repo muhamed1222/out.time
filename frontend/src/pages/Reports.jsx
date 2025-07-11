@@ -141,10 +141,10 @@ const Reports = () => {
       {/* Заголовок и фильтры */}
       <Card className="fade-in">
         <div className="flex items-center justify-between mb-6">
-          <div>
+            <div>
             <h1 className="text-heading">Отчеты</h1>
             <p className="text-caption">Отчеты сотрудников за выбранный период</p>
-          </div>
+            </div>
           <Button
             variant="primary"
             onClick={handleExport}
@@ -200,7 +200,7 @@ const Reports = () => {
           <CardTitle>Все отчеты</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          {isLoading ? (
+        {isLoading ? (
             <div className="p-6">
               <LoadingSkeleton type="table" rows={8} columns={4} />
             </div>
@@ -248,13 +248,13 @@ const Reports = () => {
                     <Badge variant="primary" size="sm">
                       {count}
                     </Badge>
-                  </div>
-                ))}
-            </div>
+              </div>
+            ))}
+          </div>
           </CardContent>
         </Card>
-      )}
-    </div>
+        )}
+      </div>
   );
 };
 

@@ -105,10 +105,10 @@ const Employees = () => {
         const end = employee.todayEndTime 
           ? format(new Date(employee.todayEndTime), 'HH:mm')
           : 'сейчас';
-        return (
+    return (
           <span className="font-mono text-sm">
             {start} — {end}
-          </span>
+      </span>
         );
       },
       className: 'text-gray-600',
@@ -140,16 +140,16 @@ const Employees = () => {
       {/* Заголовок */}
       <Card className="fade-in">
         <div className="flex items-center justify-between">
-          <div>
+        <div>
             <h1 className="text-heading">Сотрудники</h1>
             <p className="text-caption">Управление сотрудниками компании</p>
-          </div>
+        </div>
           <Button
             variant="primary"
-            onClick={() => setIsModalOpen(true)}
+          onClick={() => setIsModalOpen(true)}
             className="shrink-0"
-          >
-            + Пригласить сотрудника
+        >
+          + Пригласить сотрудника
           </Button>
         </div>
       </Card>
@@ -171,7 +171,7 @@ const Employees = () => {
             paginated={true}
             itemsPerPage={10}
           />
-        )}
+      )}
       </Card>
 
       {/* Модальное окно приглашения */}
@@ -182,7 +182,7 @@ const Employees = () => {
               <CardTitle>Пригласить сотрудника</CardTitle>
             </CardHeader>
             <CardContent>
-              {!inviteLink ? (
+            {!inviteLink ? (
                 <form onSubmit={handleInvite} className="space-form">
                   <Input
                     label="Имя сотрудника"
@@ -200,7 +200,7 @@ const Employees = () => {
                       variant="ghost" 
                       onClick={closeModal}
                     >
-                      Отмена
+                    Отмена
                     </Button>
                     <Button 
                       type="submit" 
@@ -210,21 +210,21 @@ const Employees = () => {
                     >
                       Создать приглашение
                     </Button>
-                  </div>
-                </form>
-              ) : (
+                </div>
+              </form>
+            ) : (
                 <div className="space-form">
-                  <div>
+              <div>
                     <label className="text-caption block mb-2">
-                      Отправьте эту ссылку сотруднику:
+                  Отправьте эту ссылку сотруднику:
                     </label>
                     <div className="flex items-center space-items">
                       <Input
-                        type="text"
-                        value={inviteLink}
-                        readOnly
+                    type="text"
+                    value={inviteLink}
+                    readOnly
                         className="flex-1"
-                      />
+                  />
                       <Button
                         variant="outline"
                         size="sm"
@@ -236,18 +236,18 @@ const Employees = () => {
                         </svg>
                       </Button>
                     </div>
-                  </div>
+                </div>
                   
-                  <div className="flex justify-end">
+                <div className="flex justify-end">
                     <Button 
                       variant="primary" 
                       onClick={closeModal}
                     >
                       Готово
                     </Button>
-                  </div>
                 </div>
-              )}
+              </div>
+            )}
             </CardContent>
           </Card>
         </div>
@@ -256,4 +256,4 @@ const Employees = () => {
   );
 };
 
-export default Employees;
+export default Employees; 

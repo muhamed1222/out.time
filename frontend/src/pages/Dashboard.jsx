@@ -9,6 +9,8 @@ import {
   CardTitle, 
   CardContent,
   LoadingSkeleton,
+  EmptyState,
+  Badge,
   statsColorSchemes,
   statsIcons
 } from '../components/ui';
@@ -49,8 +51,8 @@ const Dashboard = () => {
         {/* Заголовок страницы */}
         <Card>
           <div className="mb-6">
-            <div className="animate-pulse bg-gray-200 h-8 w-48 rounded mb-2"></div>
-            <div className="animate-pulse bg-gray-200 h-4 w-64 rounded"></div>
+            <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-8 w-48 rounded mb-2"></div>
+            <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-4 w-64 rounded"></div>
           </div>
         </Card>
 
@@ -64,7 +66,7 @@ const Dashboard = () => {
         {/* Скелетон последних отчетов */}
         <Card>
           <CardHeader>
-            <div className="animate-pulse bg-gray-200 h-6 w-40 rounded"></div>
+            <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-6 w-40 rounded"></div>
           </CardHeader>
           <CardContent>
             <LoadingSkeleton type="list" items={3} />
@@ -81,8 +83,8 @@ const Dashboard = () => {
       {/* Заголовок страницы */}
       <Card className="fade-in">
         <div className="mb-6">
-          <h1 className="text-heading">Дашборд</h1>
-          <p className="text-caption">Общая статистика по компании</p>
+          <h1 className="text-heading dark:text-white">Дашборд</h1>
+          <p className="text-caption dark:text-gray-400">Общая статистика по компании</p>
         </div>
       </Card>
 
@@ -100,7 +102,7 @@ const Dashboard = () => {
           }
           className="fade-in"
           style={{ animationDelay: '0.1s' }}
-        />
+          />
 
         {/* Отчеты сегодня */}
         <StatsCard
@@ -141,7 +143,7 @@ const Dashboard = () => {
       {/* Последние отчеты */}
       <Card className="fade-in" style={{ animationDelay: '0.5s' }}>
         <CardHeader>
-          <CardTitle>Последние отчеты</CardTitle>
+          <CardTitle className="dark:text-white">Последние отчеты</CardTitle>
         </CardHeader>
         <CardContent>
           {dashboardData.recentReports.length > 0 ? (
@@ -155,18 +157,18 @@ const Dashboard = () => {
                 >
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
-                      <h4 className="text-subheading text-gray-900">
+                      <h4 className="text-subheading text-gray-900 dark:text-white">
                         {report.employeeName}
                       </h4>
-                      <p className="text-body mt-1">
+                      <p className="text-body mt-1 dark:text-gray-300">
                         {report.content}
                       </p>
                     </div>
                     <div className="text-right ml-4">
-                      <p className="text-caption">
+                      <p className="text-caption dark:text-gray-400">
                         {format(new Date(report.date), 'dd.MM.yyyy')}
                       </p>
-                      <p className="text-caption text-gray-400">
+                      <p className="text-caption text-gray-400 dark:text-gray-500">
                         {format(new Date(report.createdAt), 'HH:mm:ss')}
                       </p>
                     </div>
@@ -175,15 +177,15 @@ const Dashboard = () => {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
-              <div className="mx-auto h-12 w-12 text-gray-400 mb-4">
-                {statsIcons.reports}
-              </div>
-              <p className="text-caption">Нет отчетов за сегодня</p>
-              <p className="text-caption text-gray-400 mt-1">
-                Отчеты будут отображаться здесь по мере их поступления
-              </p>
-            </div>
+            <EmptyState
+              title="Нет отчетов за сегодня"
+              description="Отчеты будут отображаться здесь по мере их поступления"
+              icon="📊"
+              action={{
+                label: "Посмотреть все отчеты",
+                href: "/reports"
+              }}
+            />
           )}
         </CardContent>
       </Card>
@@ -192,7 +194,7 @@ const Dashboard = () => {
       {dashboardData.employeeStats?.length > 0 && (
         <Card className="fade-in" style={{ animationDelay: '0.7s' }}>
           <CardHeader>
-            <CardTitle>Топ активных сотрудников</CardTitle>
+            <CardTitle className="dark:text-white">Топ активных сотрудников</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -200,18 +202,25 @@ const Dashboard = () => {
                 <Card 
                   key={employee.id}
                   variant="flat"
-                  className="text-center hover-scale"
+                  className="hover-lift"
+                  style={{ animationDelay: `${0.8 + index * 0.1}s` }}
                 >
-                  <div className="p-4">
-                    <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <span className="text-primary-600 font-semibold text-lg">
-                        {employee.name?.charAt(0) || '?'}
-                      </span>
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mx-auto mb-3 flex items-center justify-center text-white font-semibold">
+                      {employee.name?.charAt(0)?.toUpperCase() || '?'}
                     </div>
-                    <h4 className="text-subheading mb-1">{employee.name}</h4>
-                    <p className="text-caption">
-                      {employee.reportsCount} отчетов
+                    <h5 className="text-subheading text-gray-900 dark:text-white">
+                      {employee.name}
+                    </h5>
+                    <p className="text-caption dark:text-gray-400">
+                      {employee.totalReports} отчетов
                     </p>
+                    <Badge 
+                      variant="outline" 
+                      className="mt-2"
+                    >
+                      #{index + 1}
+                    </Badge>
                   </div>
                 </Card>
               ))}

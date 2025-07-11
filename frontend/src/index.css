@@ -126,7 +126,7 @@
   .btn-ghost {
     @apply text-gray-600 hover:text-gray-900 hover:bg-gray-100 active:bg-gray-200 font-medium px-4 py-2.5 rounded-lg transition-all duration-base focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transform hover:scale-[1.02] active:scale-[0.98];
   }
-
+  
   /* 🎯 Современные поля ввода */
   .input-field {
     @apply w-full px-3 py-2.5 border border-gray-300 hover:border-gray-400 rounded-lg bg-white placeholder-gray-500 text-gray-900 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-base shadow-sm focus:shadow-md;
@@ -324,7 +324,7 @@
   .container {
     @apply px-4;
   }
-
+  
   .card {
     @apply rounded-[16px] p-[10px];
   }

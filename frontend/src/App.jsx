@@ -40,8 +40,8 @@ function App() {
     <ThemeProvider>
       <MobileMenuProvider>
         <ToastProvider>
-          <Toaster position="top-right" />
-          <Routes>
+      <Toaster position="top-right" />
+      <Routes>
             {/* Корневой маршрут */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
@@ -63,11 +63,11 @@ function App() {
                 <Route path="/faq" element={<Faq />} />
                 <Route path="/components-test" element={<ComponentsTest />} />
               </Route>
-            </Route>
+          </Route>
 
             {/* Маршрут для несуществующих страниц */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
+      </Routes>
         </ToastProvider>
       </MobileMenuProvider>
     </ThemeProvider>

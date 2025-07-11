@@ -1,5 +1,5 @@
-const pool = require('../config/database');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
+const { pool } = require('../config/database');
 
 class User {
   static async create(data) {

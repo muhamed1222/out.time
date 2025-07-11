@@ -6,7 +6,7 @@ const DashboardIcon = ({ isActive }) => (
   <svg className="w-[24px] h-[24px]" fill="none" viewBox="0 0 20 20">
     <path
       d="M1 4.6C1 2.61 2.61004 1 4.60004 1C6.59004 1 8.20001 2.61 8.20001 4.6C8.20001 6.59 6.59004 8.2 4.60004 8.2C2.62004 8.2 1 6.59 1 4.6ZM15.4 8.2C17.39 8.2 19 6.59 19 4.6C19 2.61 17.39 1 15.4 1C13.41 1 11.8 2.61 11.8 4.6C11.8 6.59 13.42 8.2 15.4 8.2ZM4.60004 19C6.59004 19 8.20001 17.39 8.20001 15.4C8.20001 13.41 6.59004 11.8 4.60004 11.8C2.61004 11.8 1 13.41 1 15.4C1 17.39 2.62004 19 4.60004 19ZM15.4 19C17.39 19 19 17.39 19 15.4C19 13.41 17.39 11.8 15.4 11.8C13.41 11.8 11.8 13.41 11.8 15.4C11.8 17.39 13.42 19 15.4 19Z"
-      stroke={isActive ? '#101010' : '#727272'}
+      stroke={isActive ? 'currentColor' : '#727272'}
       strokeWidth="1.5"
     />
   </svg>
@@ -15,21 +15,26 @@ const DashboardIcon = ({ isActive }) => (
 // Иконка для Сотрудников
 const EmployeesIcon = ({ isActive }) => (
   <svg className="w-[24px] h-[24px]" fill="none" viewBox="0 0 24 24">
-    <circle cx="12" cy="7" r="4" stroke={isActive ? '#101010' : '#727272'} strokeWidth="1.5" />
-    <path d="M4 21V20C4 16.6863 6.68629 14 10 14H14C17.3137 14 20 16.6863 20 20V21" stroke={isActive ? '#101010' : '#727272'} strokeWidth="1.5" />
+    <circle cx="12" cy="7" r="4" stroke={isActive ? 'currentColor' : '#727272'} strokeWidth="1.5" />
+    <path d="M4 21V20C4 16.6863 6.68629 14 10 14H14C17.3137 14 20 16.6863 20 20V21" stroke={isActive ? 'currentColor' : '#727272'} strokeWidth="1.5" />
   </svg>
 );
 
 // Иконка для Отчетов
 const ReportsIcon = ({ isActive }) => (
   <svg className="w-[24px] h-[24px]" fill="none" viewBox="0 0 24 24">
-    <path d="M3 8.5C3 6.567 4.567 5 6.5 5H17.5C19.433 5 21 6.567 21 8.5V15.5C21 17.433 19.433 19 17.5 19H6.5C4.567 19 3 17.433 3 15.5V8.5Z" stroke={isActive ? '#101010' : '#727272'} strokeWidth="1.5" />
-    <path d="M3.5 15.5L6.82708 13.6516C7.53658 13.2575 8.41396 13.3312 9.04775 13.8382L9.39792 14.1183C10.0587 14.6469 10.9776 14.7044 11.697 14.259C13.7451 12.9911 17.9914 10.3625 21 8.5" stroke={isActive ? '#101010' : '#727272'} strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M3 8.5C3 6.567 4.567 5 6.5 5H17.5C19.433 5 21 6.567 21 8.5V15.5C21 17.433 19.433 19 17.5 19H6.5C4.567 19 3 17.433 3 15.5V8.5Z" stroke={isActive ? 'currentColor' : '#727272'} strokeWidth="1.5" />
+    <path d="M3.5 15.5L6.82708 13.6516C7.53658 13.2575 8.41396 13.3312 9.04775 13.8382L9.39792 14.1183C10.0587 14.6469 10.9776 14.7044 11.697 14.259C13.7451 12.9911 17.9914 10.3625 21 8.5" stroke={isActive ? 'currentColor' : '#727272'} strokeWidth="1.5" strokeLinecap="round" />
   </svg>
 );
 
-// Иконка для Настроек (используем иконку отчетов, т.к. в макете нет отдельной)
-const SettingsIcon = ReportsIcon;
+// Иконка для Настроек
+const SettingsIcon = ({ isActive }) => (
+  <svg className="w-[24px] h-[24px]" fill="none" viewBox="0 0 24 24" stroke={isActive ? 'currentColor' : '#727272'}>
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+  </svg>
+);
 
 // Иконка для Сообщений внизу
 const MessageIcon = () => (
@@ -59,75 +64,90 @@ const Sidebar = () => {
     { name: 'Дашборд', href: '/dashboard', icon: DashboardIcon },
     { name: 'Сотрудники', href: '/employees', icon: EmployeesIcon },
     { name: 'Отчеты', href: '/reports', icon: ReportsIcon },
+    { name: 'Настройки', href: '/settings', icon: SettingsIcon },
   ]
 
   return (
-    <div className="bg-white w-[256px] rounded-[19px] flex flex-col justify-between p-[12px]">
+    <div className="bg-white dark:bg-gray-800 w-[256px] rounded-[19px] flex flex-col justify-between p-[12px] shadow-sm border border-gray-100 dark:border-gray-700">
       <div>
-        <div className="flex items-center mb-[30px]">
+        {/* Логотип */}
+        <div className="flex items-center mb-[30px] px-[12px] py-[8px]">
           <img src="/Logo.svg" alt="Out Time Logo" className="w-[48px] h-[48px]" />
           <img src="/LogoText.svg" alt="Out Time" className="ml-[12px]" />
         </div>
+        
+        {/* Навигация */}
         <nav>
-        <ul className="space-y-[4px] pl-0">
-          {navItems.map((item) => {
-            const isActive = location.pathname.startsWith(item.href)
-            const ItemIcon = item.icon
-            return (
-              <li key={item.name}>
-                <NavLink
-                  to={item.href}
-                  className={`
-                    flex items-center px-[12px] py-[12px] rounded-[16px] text-[14px] font-semibold transition-colors duration-200
-                    ${isActive
-                        ? 'bg-[#f8f8f8] text-black'
-                        : 'text-[#727272] hover:bg-gray-100'
-                    }
-                  `}
-                >
-                  <span className="mr-[12px]">
-                    <ItemIcon isActive={isActive} />
-                  </span>
-                  {item.name}
-                </NavLink>
-              </li>
-            )
-          })}
-        </ul>
-      </nav>
+          <ul className="space-y-[4px] pl-0">
+            {navItems.map((item) => {
+              const isActive = location.pathname.startsWith(item.href)
+              const ItemIcon = item.icon
+              return (
+                <li key={item.name}>
+                  <NavLink
+                    to={item.href}
+                    className={`
+                      group flex items-center px-[12px] py-[12px] rounded-[16px] text-[14px] font-semibold transition-all duration-200
+                      ${isActive
+                          ? 'bg-[#f8f8f8] dark:bg-gray-700 text-black dark:text-white shadow-sm'
+                          : 'text-[#727272] hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-gray-900 dark:hover:text-gray-200'
+                      }
+                    `}
+                  >
+                    <span className="mr-[12px] transition-transform group-hover:scale-110">
+                      <ItemIcon isActive={isActive} />
+                    </span>
+                    {item.name}
+                  </NavLink>
+                </li>
+              )
+            })}
+          </ul>
+        </nav>
       </div>
       
-
-      <div className="p-3">
+      {/* Дополнительные ссылки */}
+      <div className="border-t border-gray-100 dark:border-gray-700 pt-4">
         <NavLink
           to="/components-test"
           className={({ isActive }) =>
-            `block mb-2 text-sm hover:text-black transition-colors ${
-              isActive ? 'font-semibold text-black' : 'text-blue-600'
+            `flex items-center px-[12px] py-[8px] rounded-[12px] text-[12px] font-medium transition-colors mb-2 ${
+              isActive 
+                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' 
+                : 'text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20'
             }`
           }
         >
-          🎨 UI Компоненты
+          <span className="mr-2">🎨</span>
+          UI Компоненты
         </NavLink>
+        
         <NavLink
           to="/help"
           className={({ isActive }) =>
-            `block mb-2 text-sm hover:text-black transition-colors ${
-              isActive ? 'font-semibold text-black' : 'text-gray-600'
+            `flex items-center px-[12px] py-[8px] rounded-[12px] text-[12px] font-medium transition-colors mb-2 ${
+              isActive 
+                ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100' 
+                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
             }`
           }
         >
+          <span className="mr-2">❓</span>
           Помощь
         </NavLink>
+        
         <NavLink
           to="/faq"
           className={({ isActive }) =>
-            `block text-sm hover:text-black transition-colors ${
-              isActive ? 'font-semibold text-black' : 'text-gray-600'
+            `flex items-center px-[12px] py-[8px] rounded-[12px] text-[12px] font-medium transition-colors ${
+              isActive 
+                ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100' 
+                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
             }`
           }
         >
-          Часто задаваемые вопросы
+          <span className="mr-2">💬</span>
+          FAQ
         </NavLink>
       </div>
     </div>
