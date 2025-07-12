@@ -70,3 +70,4 @@ coverage/
 # Backup файлы
 *.bak
 *.backup
+node_modules
